@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Força o modo dark */
+.dark {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.dark .bg-white {
+  background-color: #1f2937; /* cinza escuro no lugar do branco */
+}
+
+.dark .text-gray-800 {
+  color: #f9fafb; /* texto claro no lugar do escuro */
+}

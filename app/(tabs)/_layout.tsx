@@ -1,70 +1,111 @@
-import { SymbolView } from 'expo-symbols';
-import { Link, Tabs } from 'expo-router';
-import { Platform, Pressable } from 'react-native';
+import { Tabs } from 'expo-router'
+import { useAuthStore } from '../../stores/authStore'
+import { Ionicons } from '@expo/vector-icons'
 
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+export default function TabsLayout() {
+  const { activeRole } = useAuthStore()
+  const isLeader = activeRole === 'leader'
 
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme].tint,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{
-                ios: 'chevron.left.forwardslash.chevron.right',
-                android: 'code',
-                web: 'code',
-              }}
-              tintColor={color}
-              size={28}
-            />
-          ),
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable style={{ marginRight: 15 }}>
-                {({ pressed }) => (
-                  <SymbolView
-                    name={{ ios: 'info.circle', android: 'info', web: 'info' }}
-                    size={25}
-                    tintColor={Colors[colorScheme].text}
-                    style={{ opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
-        }}
+    <Tabs screenOptions={{ 
+      tabBarActiveTintColor: '#2563eb',
+      headerShown: true,
+      headerStyle: { backgroundColor: '#f8fafc' },
+      headerTitleStyle: { fontWeight: 'bold' },
+      tabBarStyle: { height: 60, paddingBottom: 8, backgroundColor: '#ffffff' },
+      animation: 'shift',
+      sceneContainerStyle: { backgroundColor: '#ffffff' },
+    }}>
+      {/* 1. Painel / Início (Sempre visível) */}
+      <Tabs.Screen 
+        name='home' 
+        options={{ 
+          title: isLeader ? 'Painel' : 'Início',
+          tabBarIcon: ({ color }) => <Ionicons name={isLeader ? "stats-chart" : "home"} size={24} color={color} />
+        }} 
       />
-      <Tabs.Screen
-        name="two"
-        options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{
-                ios: 'chevron.left.forwardslash.chevron.right',
-                android: 'code',
-                web: 'code',
-              }}
-              tintColor={color}
-              size={28}
-            />
-          ),
-        }}
+
+      {/* 2. Repertório (Apenas Integrante) */}
+      <Tabs.Screen 
+        name='repertoire' 
+        options={{ 
+          title: 'Repertório',
+          href: isLeader ? null : '/repertoire',
+          tabBarIcon: ({ color }) => <Ionicons name="musical-notes" size={24} color={color} />
+        }} 
       />
+
+      {/* 3. Agenda (Apenas Integrante) */}
+      <Tabs.Screen 
+        name='availability' 
+        options={{ 
+          title: 'Agenda',
+          href: isLeader ? null : '/availability',
+          tabBarIcon: ({ color }) => <Ionicons name="calendar" size={24} color={color} />
+        }} 
+      />
+
+      {/* 4. Perfil (Apenas Integrante) */}
+      <Tabs.Screen 
+        name='profile' 
+        options={{ 
+          title: 'Perfil',
+          href: isLeader ? null : '/profile',
+          tabBarIcon: ({ color }) => <Ionicons name="person" size={24} color={color} />
+        }} 
+      />
+
+      {/* 5. Escala (Apenas Líder) */}
+      <Tabs.Screen 
+        name='schedule' 
+        options={{ 
+          title: 'Escala',
+          href: isLeader ? '/schedule' : null,
+          tabBarIcon: ({ color }) => <Ionicons name="list" size={24} color={color} />
+        }} 
+      />
+
+      {/* 6. Métricas (Apenas Líder) */}
+      <Tabs.Screen 
+        name='metrics' 
+        options={{ 
+          title: 'Métricas',
+          href: isLeader ? '/metrics' : null,
+          tabBarIcon: ({ color }) => <Ionicons name="bar-chart" size={24} color={color} />
+        }} 
+      />
+
+      {/* 7. Feedbacks (Apenas Líder) */}
+      <Tabs.Screen 
+        name='feedback' 
+        options={{ 
+          title: 'Feedbacks',
+          href: isLeader ? '/feedback' : null,
+          tabBarIcon: ({ color }) => <Ionicons name="chatbubbles" size={24} color={color} />
+        }} 
+      />
+
+      {/* 8. Repertório/Sugestões (Apenas Líder) */}
+      <Tabs.Screen 
+        name='repertoire-management' 
+        options={{ 
+          title: 'Gestão',
+          href: isLeader ? '/repertoire-management' : null,
+          tabBarIcon: ({ color }) => <Ionicons name="albums" size={24} color={color} />
+        }} 
+      />
+      
+      {/* 9. Ajustes (Sempre visível) */}
+      <Tabs.Screen 
+        name='settings' 
+        options={{ 
+          title: 'Ajustes',
+          tabBarIcon: ({ color }) => <Ionicons name="settings" size={24} color={color} />
+        }} 
+      />
+
+      {/* Abas invisíveis que precisam existir no router */}
+      <Tabs.Screen name='suggestions' options={{ href: null }} />
     </Tabs>
-  );
+  )
 }
