@@ -40,3 +40,21 @@ export function useDeleteEvent() {
     }
   });
 }
+
+export function useUpdateEvent() {
+  const queryClient = useQueryClient();
+  const { activeGroup } = useAuthStore();
+
+  return useMutation({
+    mutationFn: async ({ id, theme_title, theme_verse }: { id: string, theme_title: string, theme_verse: string }) => {
+      const { error } = await supabase
+        .from('events')
+        .update({ theme_title, theme_verse })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events', activeGroup?.id] });
+    }
+  });
+}

@@ -10,10 +10,7 @@ export function useSetlistItems(eventId: string) {
         .select(`
           id,
           display_order,
-          songs (
-            title,
-            default_key
-          )
+          songs (*)
         `)
         .eq('event_id', eventId)
         .order('display_order');

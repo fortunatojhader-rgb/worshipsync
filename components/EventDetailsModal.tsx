@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, ScrollView, Alert, ActivityIndicator, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../stores/authStore';
 import { AddToSetlistModal } from './AddToSetlistModal';
 import { DeleteSetlistModal } from './DeleteSetlistModal';
+import { SongDetailsModal } from './SongDetailsModal';
 import { useSetlistItems, useAddSetlistItem } from '../lib/queries/useSetlist';
 import { useUpdateSetlistOrder, useDeleteSetlistItem } from '../lib/queries/useSetlistMutations';
+import { useUpdateEvent } from '../lib/queries/useEvents';
 
 interface EventDetailsModalProps {
   visible: boolean;
@@ -18,15 +20,20 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
   const [tab, setTab] = useState<'roster' | 'setlist' | 'theme'>('roster');
   const [addSongVisible, setAddSongVisible] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
+  const [detailsSong, setDetailsSong] = useState<any | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [themeTitle, setThemeTitle] = useState(event?.theme_title || '');
+  const [themeVerse, setThemeVerse] = useState(event?.theme_verse || '');
+
   const { activeRole } = useAuthStore();
   const isLeader = activeRole === 'leader';
   
   const { data: setlist, isLoading } = useSetlistItems(event?.id);
   const addSetlist = useAddSetlistItem();
   const updateOrder = useUpdateSetlistOrder();
+  const deleteSetlistItem = useDeleteSetlistItem();
+  const updateEvent = useUpdateEvent();
 
-  // Mock de escalados (Seção 4.7)
   const roster = [
     { id: '1', name: 'Ana Souza', inst: 'Vocal', status: 'confirmed', color: '#16a34a' },
     { id: '2', name: 'João Rocha', inst: 'Bateria', status: 'pending', color: '#ca8a04' },
@@ -49,12 +56,29 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
 
     const targetItem = setlist[newIndex];
     
-    // Swap orders
     const currentOrder = item.display_order || currentIndex + 1;
     const targetOrder = targetItem.display_order || newIndex + 1;
     
     await updateOrder.mutateAsync({ id: item.id, newOrder: targetOrder });
     await updateOrder.mutateAsync({ id: targetItem.id, newOrder: currentOrder });
+  };
+
+  const handleUpdateTheme = async () => {
+    try {
+      await updateEvent.mutateAsync({
+        id: event.id,
+        theme_title: themeTitle,
+        theme_verse: themeVerse
+      });
+      event.theme_title = themeTitle;
+      event.theme_verse = themeVerse;
+      
+      Alert.alert('Sucesso', 'Tema atualizado com sucesso!');
+      setIsEditing(false); 
+      onSuccess(); 
+    } catch (error: any) {
+      Alert.alert('Erro', error.message);
+    }
   };
 
   return (
@@ -77,7 +101,6 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
             </View>
           </View>
 
-          {/* Tabs de Navegação */}
           <View className="bg-gray-100 rounded-2xl p-1 flex-row mb-6">
             <TouchableOpacity onPress={() => setTab('roster')} className={`flex-1 py-2 rounded-xl items-center ${tab === 'roster' ? 'bg-white shadow-sm' : ''}`}><Text className={`font-bold text-xs ${tab === 'roster' ? 'text-blue-600' : 'text-gray-500'}`}>Equipe</Text></TouchableOpacity>
             <TouchableOpacity onPress={() => setTab('setlist')} className={`flex-1 py-2 rounded-xl items-center ${tab === 'setlist' ? 'bg-white shadow-sm' : ''}`}><Text className={`font-bold text-xs ${tab === 'setlist' ? 'text-blue-600' : 'text-gray-500'}`}>Setlist</Text></TouchableOpacity>
@@ -131,7 +154,7 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                   setlist?.length === 0 ? 
                   <Text className="text-gray-600">Nenhuma música no setlist.</Text> :
                   setlist?.map((item: any) => (
-                    <View key={item.id} className="bg-white p-3 rounded-lg mb-2 flex-row justify-between items-center shadow-sm border border-gray-100">
+                    <TouchableOpacity key={item.id} disabled={isEditing} onPress={() => setDetailsSong(item.songs)} className="bg-white p-3 rounded-lg mb-2 flex-row justify-between items-center shadow-sm border border-gray-100">
                       <View className="flex-row items-center flex-1">
                         {isLeader && isEditing && (
                           <View className="mr-2">
@@ -149,7 +172,7 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                           </TouchableOpacity>
                         )}
                       </View>
-                    </View>
+                    </TouchableOpacity>
                   ))
                 )}
               </View>
@@ -157,8 +180,18 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
 
             {tab === 'theme' && (
               <View className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
-                <Text className="text-blue-800 font-bold mb-2 text-lg">{event?.theme_title || 'Sem tema definido'}</Text>
-                <Text className="text-blue-600 italic">"{event?.theme_verse || 'Nenhum versículo ou descrição.'}"</Text>
+                {isLeader && isEditing ? (
+                    <>
+                        <TextInput className="bg-white p-4 rounded-xl mb-3" placeholder="Título do Tema" value={themeTitle} onChangeText={setThemeTitle} />
+                        <TextInput className="bg-white p-4 rounded-xl mb-4" placeholder="Versículo/Descrição" value={themeVerse} onChangeText={setThemeVerse} multiline />
+                        <TouchableOpacity onPress={handleUpdateTheme} className="bg-blue-600 p-3 rounded-xl items-center"><Text className="text-white font-bold">Salvar Tema</Text></TouchableOpacity>
+                    </>
+                ) : (
+                    <>
+                        <Text className="text-blue-800 font-bold mb-2 text-lg">{event?.theme_title || 'Sem tema definido'}</Text>
+                        <Text className="text-blue-600 italic">"{event?.theme_verse || 'Nenhum versículo ou descrição.'}"</Text>
+                    </>
+                )}
               </View>
             )}
           </ScrollView>
@@ -173,6 +206,11 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
         visible={!!deleteItemId} 
         onClose={() => setDeleteItemId(null)} 
         itemId={deleteItemId}
+      />
+      <SongDetailsModal 
+        visible={!!detailsSong} 
+        onClose={() => setDetailsSong(null)} 
+        song={detailsSong}
       />
     </Modal>
   );
