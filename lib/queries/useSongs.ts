@@ -20,6 +20,52 @@ export function useSongs() {
   });
 }
 
+export function useAddSong() {
+  const queryClient = useQueryClient();
+  const { activeGroup } = useAuthStore();
+  return useMutation({
+    mutationFn: async (song: any) => {
+      if (!activeGroup) throw new Error('Grupo não definido');
+      const { error } = await supabase.from('songs').insert({ ...song, group_id: activeGroup.id });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['songs', activeGroup?.id] });
+    }
+  });
+}
+
+export function useDeleteSong() {
+  const queryClient = useQueryClient();
+  const { activeGroup } = useAuthStore();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('songs').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['songs', activeGroup?.id] });
+    }
+  });
+}
+
+export function useUpdateSong() {
+  const queryClient = useQueryClient();
+  const { activeGroup } = useAuthStore();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; [key: string]: any }) => {
+      const { error } = await supabase
+        .from('songs')
+        .update(updates)
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['songs', activeGroup?.id] });
+    }
+  });
+}
+
 export function useSongSuggestions() {
   const { activeGroup } = useAuthStore();
   return useQuery({
