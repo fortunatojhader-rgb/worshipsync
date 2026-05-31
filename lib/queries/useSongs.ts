@@ -4,18 +4,15 @@ import { useAuthStore } from '../../stores/authStore';
 
 export function useSongs() {
   const { activeGroup } = useAuthStore();
-
   return useQuery({
     queryKey: ['songs', activeGroup?.id],
     queryFn: async () => {
       if (!activeGroup) return [];
-      
       const { data, error } = await supabase
         .from('songs')
         .select('*')
         .eq('group_id', activeGroup.id)
         .order('title');
-
       if (error) throw error;
       return data;
     },
@@ -23,60 +20,65 @@ export function useSongs() {
   });
 }
 
-export function useAddSong() {
-  const queryClient = useQueryClient();
+export function useSongSuggestions() {
   const { activeGroup } = useAuthStore();
+  return useQuery({
+    queryKey: ['suggestions', activeGroup?.id],
+    queryFn: async () => {
+      if (!activeGroup) return [];
+      const { data, error } = await supabase
+        .from('song_suggestions')
+        .select('*, group_members(users(display_name))')
+        .eq('status', 'pending');
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!activeGroup,
+  });
+}
+
+export function useSuggestSong() {
+  const queryClient = useQueryClient();
+  const { activeGroup, user } = useAuthStore();
 
   return useMutation({
-    mutationFn: async (newSong: { title: string, artist: string, default_key: string, default_bpm: number }) => {
-      if (!activeGroup) throw new Error('Grupo não definido');
+    mutationFn: async (suggestion: { song_name: string, reason?: string, link?: string }) => {
+      if (!activeGroup || !user) throw new Error('Dados insuficientes');
       
-      const { error } = await supabase
-        .from('songs')
-        .insert({ ...newSong, group_id: activeGroup.id });
+      const { data: memberData } = await supabase
+        .from('group_members')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('group_id', activeGroup.id)
+        .single();
+
+      const { error } = await supabase.from('song_suggestions').insert({
+        ...suggestion,
+        group_member_id: memberData?.id,
+        status: 'pending'
+      });
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['songs', activeGroup?.id] });
+      queryClient.invalidateQueries({ queryKey: ['suggestions'] });
     }
   });
 }
 
-export function useUpdateSong() {
+export function useProcessSuggestion() {
   const queryClient = useQueryClient();
-  const { activeGroup } = useAuthStore();
-
   return useMutation({
-    mutationFn: async ({ id, title, artist, default_key, default_bpm, lyrics, notes, youtube_url, spotify_url, cifraclub_url }: { id: string, title: string, artist: string, default_key: string, default_bpm: number, lyrics: string, notes: string, youtube_url: string, spotify_url: string, cifraclub_url: string }) => {
-      const { error } = await supabase
-        .from('songs')
-        .update({ title, artist, default_key, default_bpm, lyrics, notes, youtube_url, spotify_url, cifraclub_url })
-        .eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['songs', activeGroup?.id] });
-    }
-  });
-}
-
-export function useDeleteSong() {
-  const queryClient = useQueryClient();
-  const { activeGroup } = useAuthStore();
-
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('songs')
-        .delete()
-        .eq('id', id);
-      if (error) {
-        console.error('Erro ao deletar musica:', error);
-        throw error;
+    mutationFn: async ({ id, accept, songData }: { id: string, accept: boolean, songData?: any }) => {
+      if (accept && songData) {
+        const { error: songError } = await supabase.from('songs').insert(songData);
+        if (songError) throw songError;
       }
+      const { error } = await supabase.from('song_suggestions').update({ status: accept ? 'accepted' : 'rejected' }).eq('id', id);
+      if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['songs', activeGroup?.id] });
+      queryClient.invalidateQueries({ queryKey: ['suggestions'] });
+      queryClient.invalidateQueries({ queryKey: ['songs'] });
     }
   });
 }

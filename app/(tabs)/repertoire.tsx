@@ -7,9 +7,11 @@ import { AddSongModal } from '../../components/AddSongModal';
 import { EditSongModal } from '../../components/EditSongModal';
 import { DeleteSongModal } from '../../components/DeleteSongModal';
 import { SongDetailsModal } from '../../components/SongDetailsModal';
+import { SuggestSongModal } from '../../components/SuggestSongModal';
 
 export default function RepertoireScreen() {
   const [addModalVisible, setAddModalVisible] = useState(false);
+  const [suggestModalVisible, setSuggestModalVisible] = useState(false);
   const [editSong, setEditSong] = useState<any | null>(null);
   const [deleteSongItem, setDeleteSongItem] = useState<any | null>(null);
   const [detailsSong, setDetailsSong] = useState<any | null>(null);
@@ -30,14 +32,16 @@ export default function RepertoireScreen() {
 
         {isLoading ? <ActivityIndicator /> : (
           <>
-            {isLeader && (
-              <View className="mb-4">
-                <TouchableOpacity onPress={() => setAddModalVisible(true)} className="bg-blue-600 p-4 rounded-2xl flex-row items-center justify-center shadow-md">
-                  <Ionicons name="add" size={20} color="white" />
-                  <Text className="text-white font-bold ml-2">Adicionar Música</Text>
+            <View className="mb-4">
+                <TouchableOpacity 
+                    onPress={() => isLeader ? setAddModalVisible(true) : setSuggestModalVisible(true)} 
+                    className="bg-blue-600 p-4 rounded-2xl flex-row items-center justify-center shadow-md"
+                >
+                  <Ionicons name={isLeader ? "add" : "bulb"} size={20} color="white" />
+                  <Text className="text-white font-bold ml-2">{isLeader ? 'Adicionar Música' : 'Sugerir Nova Música'}</Text>
                 </TouchableOpacity>
-              </View>
-            )}
+            </View>
+
             {songs?.length === 0 ? (
                 <Text className="text-gray-500 text-center py-4">Nenhuma música cadastrada.</Text>
             ) : (
@@ -80,6 +84,7 @@ export default function RepertoireScreen() {
       <EditSongModal visible={!!editSong} onClose={() => setEditSong(null)} song={editSong} />
       <DeleteSongModal visible={!!deleteSongItem} onClose={() => setDeleteSongItem(null)} song={deleteSongItem} />
       <SongDetailsModal visible={!!detailsSong} onClose={() => setDetailsSong(null)} song={detailsSong} />
+      <SuggestSongModal visible={suggestModalVisible} onClose={() => setSuggestModalVisible(false)} />
     </View>
   );
 }
