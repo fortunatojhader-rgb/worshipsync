@@ -63,3 +63,17 @@ export function useUpdateEvent() {
     }
   });
 }
+
+export function useGenerateScale() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (eventId: string) => {
+      const { error } = await supabase.rpc('generate_event_scale', { target_event_id: eventId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['roster'] });
+    }
+  });
+}

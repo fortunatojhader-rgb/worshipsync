@@ -1,10 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../supabase';
+import { useAuthStore } from '../../stores/authStore';
 
 export function useSetlistItems(eventId: string) {
   return useQuery({
     queryKey: ['setlist', eventId],
     queryFn: async () => {
+      if (!eventId) return [];
       const { data, error } = await supabase
         .from('setlist_items')
         .select(`

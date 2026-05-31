@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, TouchableOpacity, ScrollView, Alert, ActivityIndicator, TextInput } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, ScrollView, Alert, ActivityIndicator, TextInput, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../stores/authStore';
 import { AddToSetlistModal } from './AddToSetlistModal';
 import { DeleteSetlistModal } from './DeleteSetlistModal';
 import { SongDetailsModal } from './SongDetailsModal';
+import { MemberProfileModal } from './MemberProfileModal';
 import { useSetlistItems, useAddSetlistItem } from '../lib/queries/useSetlist';
-import { useUpdateSetlistOrder, useDeleteSetlistItem } from '../lib/queries/useSetlistMutations';
-import { useUpdateEvent } from '../lib/queries/useEvents';
+import { useUpdateSetlistOrder } from '../lib/queries/useSetlistMutations';
+import { useUpdateEvent, useGenerateScale } from '../lib/queries/useEvents';
+import { useEventRoster } from '../lib/queries/useMembers';
 
 interface EventDetailsModalProps {
   visible: boolean;
@@ -21,6 +23,7 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
   const [addSongVisible, setAddSongVisible] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
   const [detailsSong, setDetailsSong] = useState<any | null>(null);
+  const [selectedMember, setSelectedMember] = useState<any | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingTime, setIsEditingTime] = useState(false);
   
@@ -31,17 +34,13 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
   const { activeRole } = useAuthStore();
   const isLeader = activeRole === 'leader';
   
-  const { data: setlist, isLoading } = useSetlistItems(event?.id);
+  const { data: setlist, isLoading: loadingSetlist } = useSetlistItems(event?.id);
+  const { data: roster, isLoading: loadingRoster } = useEventRoster(event?.id);
+  
   const addSetlist = useAddSetlistItem();
   const updateOrder = useUpdateSetlistOrder();
-  const deleteSetlistItem = useDeleteSetlistItem();
   const updateEvent = useUpdateEvent();
-
-  // Mock de escalados (Seção 4.7)
-  const roster = [
-    { id: '1', name: 'Ana Souza', inst: 'Vocal', status: 'confirmed', color: '#16a34a' },
-    { id: '2', name: 'João Rocha', inst: 'Bateria', status: 'pending', color: '#ca8a04' },
-  ];
+  const generateScale = useGenerateScale();
 
   useEffect(() => {
     if (event) {
@@ -50,30 +49,15 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
         const date = new Date(event.event_date);
         setEventTime(`${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`);
     }
-  }, [event]);
+  }, [event, visible]);
 
-  const handleGenerateScale = () => {
-    Alert.alert('Escala', 'Chamando algoritmo de escala automática...');
-  };
-
-  const handleAddSong = async (songId: string) => {
-    await addSetlist.mutateAsync({ eventId: event.id, songId });
-    setAddSongVisible(false);
-  };
-
-  const moveSong = async (item: any, direction: 'up' | 'down') => {
-    if (!setlist) return;
-    const currentIndex = setlist.findIndex(s => s.id === item.id);
-    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-    if (newIndex < 0 || newIndex >= setlist.length) return;
-
-    const targetItem = setlist[newIndex];
-    
-    const currentOrder = item.display_order || currentIndex + 1;
-    const targetOrder = targetItem.display_order || newIndex + 1;
-    
-    await updateOrder.mutateAsync({ id: item.id, newOrder: targetOrder });
-    await updateOrder.mutateAsync({ id: targetItem.id, newOrder: currentOrder });
+  const handleGenerateScale = async () => {
+    try {
+      await generateScale.mutateAsync(event.id);
+      Alert.alert('Sucesso', 'Escala gerada com equidade!');
+    } catch (error: any) {
+      Alert.alert('Erro', error.message);
+    }
   };
 
   const handleSaveEvent = async () => {
@@ -89,7 +73,6 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
         event_date: newDate.toISOString()
       });
       
-      // Atualiza o objeto local
       event.theme_title = themeTitle;
       event.theme_verse = themeVerse;
       event.event_date = newDate.toISOString();
@@ -100,6 +83,21 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
     } catch (error: any) {
       Alert.alert('Erro', error.message);
     }
+  };
+
+  const handleAddSong = async (songId: string) => {
+    await addSetlist.mutateAsync({ eventId: event.id, songId });
+    setAddSongVisible(false);
+  };
+
+  const moveSong = async (item: any, direction: 'up' | 'down') => {
+    if (!setlist) return;
+    const currentIndex = setlist.findIndex(s => s.id === item.id);
+    const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex < 0 || newIndex >= setlist.length) return;
+    const targetItem = setlist[newIndex];
+    await updateOrder.mutateAsync({ id: item.id, newOrder: targetItem.display_order || newIndex + 1 });
+    await updateOrder.mutateAsync({ id: targetItem.id, newOrder: item.display_order || currentIndex + 1 });
   };
 
   return (
@@ -152,48 +150,59 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
             {tab === 'roster' && (
               <>
                 {isLeader && isEditing && (
-                  <TouchableOpacity onPress={handleGenerateScale} className="bg-blue-600 p-4 rounded-2xl mb-6 items-center">
-                    <Text className="text-white font-bold">Gerar/Atualizar Escala</Text>
+                  <TouchableOpacity 
+                    onPress={handleGenerateScale} 
+                    disabled={generateScale.isPending}
+                    className="bg-blue-600 p-4 rounded-2xl mb-6 items-center shadow-md"
+                  >
+                    {generateScale.isPending ? <ActivityIndicator color="white" /> : <Text className="text-white font-bold text-lg">Gerar Escala Inteligente</Text>}
                   </TouchableOpacity>
                 )}
-                {roster.map((p) => (
-                  <View key={p.id} className="bg-white p-4 rounded-2xl mb-3 shadow-sm border border-gray-100 flex-row items-center justify-between">
-                    <View className="flex-row items-center">
-                      <View className="w-10 h-10 bg-blue-50 rounded-full items-center justify-center mr-3">
-                        <Ionicons name="person" size={20} color="#2563eb" />
-                      </View>
-                      <View>
-                        <Text className="font-bold text-gray-800">{p.name}</Text>
-                        <Text className="text-gray-400 text-xs uppercase font-bold">{p.inst}</Text>
-                      </View>
-                    </View>
-                    <View className="items-end">
-                      <View className="flex-row items-center mb-1">
-                        <View className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: p.color }} />
-                        <Text className="text-xs font-bold" style={{ color: p.color }}>{p.status === 'confirmed' ? 'Confirmado' : 'Pendente'}</Text>
-                      </View>
-                      {isLeader && isEditing && (
-                        <View className="flex-row gap-x-2">
-                          <TouchableOpacity><Ionicons name="swap-horizontal" size={16} color="#4b5563" /></TouchableOpacity>
-                          <TouchableOpacity><Ionicons name="trash" size={16} color="#ef4444" /></TouchableOpacity>
+                
+                {loadingRoster ? <ActivityIndicator /> : (
+                  roster?.length === 0 ? <Text className="text-gray-400 text-center py-8 italic">Ninguém escalado ainda.</Text> :
+                  roster?.map((p: any) => (
+                    <TouchableOpacity key={p.id} onPress={() => setSelectedMember(p.group_members)} className="bg-white p-4 rounded-2xl mb-3 shadow-sm border border-gray-100 flex-row items-center justify-between">
+                      <View className="flex-row items-center">
+                        <View className="w-10 h-10 bg-blue-50 rounded-full items-center justify-center mr-3 overflow-hidden">
+                          {p.group_members?.users?.photo_url ? (
+                              <Image source={{ uri: p.group_members.users.photo_url }} className="w-full h-full" />
+                          ) : (
+                              <Ionicons name="person" size={20} color="#2563eb" />
+                          )}
                         </View>
-                      )}
-                    </View>
-                  </View>
-                ))}
+                        <View>
+                          <Text className="font-bold text-gray-800">{p.group_members?.users?.display_name}</Text>
+                          <Text className="text-gray-400 text-xs uppercase font-bold tracking-widest">{p.instrument}</Text>
+                        </View>
+                      </View>
+                      <View className="items-end">
+                        <View className="flex-row items-center mb-1">
+                          <View className={`w-2 h-2 rounded-full mr-2 ${
+                            p.status === 'confirmed' ? 'bg-green-500' : 
+                            p.status === 'declined' ? 'bg-red-500' : 'bg-yellow-500'
+                          }`} />
+                          <Text className={`text-[10px] font-bold uppercase ${
+                            p.status === 'confirmed' ? 'text-green-600' : 
+                            p.status === 'declined' ? 'text-red-600' : 'text-yellow-600'
+                          }`}>{p.status === 'confirmed' ? 'Confirmado' : p.status === 'declined' ? 'Recusado' : 'Pendente'}</Text>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  ))
+                )}
               </>
             )}
 
             {tab === 'setlist' && (
               <View className="bg-gray-50 p-4 rounded-2xl">
                 {isLeader && isEditing && (
-                    <TouchableOpacity onPress={() => setAddSongVisible(true)} className="bg-blue-600 p-3 rounded-xl mb-4 items-center">
-                        <Text className="text-white font-bold">Adicionar Música ao Setlist</Text>
+                    <TouchableOpacity onPress={() => setAddSongVisible(true)} className="bg-blue-600 p-3 rounded-xl mb-4 items-center shadow-sm">
+                        <Text className="text-white font-bold">Adicionar Música</Text>
                     </TouchableOpacity>
                 )}
-                {isLoading ? <ActivityIndicator /> : (
-                  setlist?.length === 0 ? 
-                  <Text className="text-gray-600">Nenhuma música no setlist.</Text> :
+                {loadingSetlist ? <ActivityIndicator /> : (
+                  setlist?.length === 0 ? <Text className="text-gray-600 italic text-center py-4">Nenhuma música no setlist.</Text> :
                   setlist?.map((item: any) => (
                     <TouchableOpacity key={item.id} disabled={isEditing} onPress={() => setDetailsSong(item.songs)} className="bg-white p-4 rounded-2xl mb-3 shadow-sm border border-gray-100 flex-row justify-between items-center">
                       <View className="flex-row items-center flex-1">
@@ -206,12 +215,6 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                         <View className="flex-1 ml-1">
                           <Text className="font-bold text-gray-800">{(item.songs as any)?.title}</Text>
                           <Text className="text-xs text-gray-400 mb-1">{(item.songs as any)?.artist} • {(item.songs as any)?.default_bpm} BPM</Text>
-                          <View className="flex-row gap-x-1">
-                            {(item.songs as any)?.youtube_url && <Ionicons name="logo-youtube" size={14} color="#ef4444" />}
-                            {(item.songs as any)?.spotify_url && <Ionicons name="musical-notes" size={14} color="#1db954" />}
-                            {(item.songs as any)?.cifraclub_url && <Ionicons name="document-text" size={14} color="#2563eb" />}
-                            {(item.songs as any)?.lyrics && <Ionicons name="text" size={14} color="#6b7280" />}
-                          </View>
                         </View>
                       </View>
                       <View className="items-end ml-2">
@@ -232,9 +235,9 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
               <View className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
                 {isLeader && isEditing ? (
                     <>
-                        <TextInput className="bg-white p-4 rounded-xl mb-3" placeholder="Título do Tema" value={themeTitle} onChangeText={setThemeTitle} />
-                        <TextInput className="bg-white p-4 rounded-xl mb-4" placeholder="Versículo/Descrição" value={themeVerse} onChangeText={setThemeVerse} multiline />
-                        <TouchableOpacity onPress={handleSaveEvent} className="bg-blue-600 p-3 rounded-xl items-center"><Text className="text-white font-bold">Salvar Tema</Text></TouchableOpacity>
+                        <TextInput className="bg-white p-4 rounded-xl mb-3 border border-blue-200" placeholder="Título do Tema" value={themeTitle} onChangeText={setThemeTitle} />
+                        <TextInput className="bg-white p-4 rounded-xl mb-4 border border-blue-200 h-32" placeholder="Versículo/Descrição" value={themeVerse} onChangeText={setThemeVerse} multiline textAlignVertical="top" />
+                        <TouchableOpacity onPress={handleSaveEvent} className="bg-blue-600 p-3 rounded-xl items-center shadow-md"><Text className="text-white font-bold">Salvar Tema</Text></TouchableOpacity>
                     </>
                 ) : (
                     <>
@@ -247,21 +250,10 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
           </ScrollView>
         </View>
       </View>
-      <AddToSetlistModal 
-        visible={addSongVisible} 
-        onClose={() => setAddSongVisible(false)} 
-        onAdd={handleAddSong}
-      />
-      <DeleteSetlistModal 
-        visible={!!deleteItemId} 
-        onClose={() => setDeleteItemId(null)} 
-        itemId={deleteItemId}
-      />
-      <SongDetailsModal 
-        visible={!!detailsSong} 
-        onClose={() => setDetailsSong(null)} 
-        song={detailsSong}
-      />
+      <AddToSetlistModal visible={addSongVisible} onClose={() => setAddSongVisible(false)} onAdd={handleAddSong} />
+      <DeleteSetlistModal visible={!!deleteItemId} onClose={() => setDeleteItemId(null)} itemId={deleteItemId} />
+      <SongDetailsModal visible={!!detailsSong} onClose={() => setDetailsSong(null)} song={detailsSong} />
+      <MemberProfileModal visible={!!selectedMember} onClose={() => setSelectedMember(null)} member={selectedMember} />
     </Modal>
   );
 }
