@@ -91,19 +91,28 @@ export function useSuggestSong() {
     mutationFn: async (suggestion: { song_name: string, reason?: string, link?: string }) => {
       if (!activeGroup || !user) throw new Error('Dados insuficientes');
       
-      const { data: memberData } = await supabase
+      const { data: memberData, error: memberError } = await supabase
         .from('group_members')
         .select('id')
         .eq('user_id', user.id)
         .eq('group_id', activeGroup.id)
         .single();
 
+      if (memberError || !memberData) {
+        console.error('Member lookup error:', memberError);
+        throw new Error('Membro não encontrado ou grupo inválido');
+      }
+
       const { error } = await supabase.from('song_suggestions').insert({
         ...suggestion,
-        group_member_id: memberData?.id,
+        group_member_id: memberData.id,
         status: 'pending'
       });
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Supabase Insert Error:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['suggestions'] });
