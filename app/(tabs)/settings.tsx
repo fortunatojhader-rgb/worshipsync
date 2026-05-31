@@ -5,12 +5,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { CreateGroupModal } from '../../components/CreateGroupModal';
 import { EditGroupModal } from '../../components/EditGroupModal';
+import { ManageFormationModal } from '../../components/ManageFormationModal';
+import { TutorialModal } from '../../components/TutorialModal';
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { activeRole, setActiveRole, activeGroup, setActiveGroup, actualRole } = useAuthStore();
+  const { activeRole, setActiveRole, activeGroup, setActiveGroup, actualRole, signOut } = useAuthStore();
   const [modalVisible, setModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
+  const [formationModalVisible, setFormationModalVisible] = useState(false);
+  const [tutorialVisible, setTutorialVisible] = useState(false);
+  
   const isLeader = activeRole === 'leader';
   const isActualLeader = actualRole === 'leader';
   
@@ -19,6 +24,11 @@ export default function SettingsScreen() {
     email: false,
     whatsapp: false,
   });
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.replace('/(auth)/login');
+  };
 
   return (
     <View className="flex-1 bg-gray-50">
@@ -47,95 +57,64 @@ export default function SettingsScreen() {
           </View>
         )}
 
-        {/* Alternar Role (Apenas se pertencer a um grupo e for líder real) */}
+        {/* Alternar Role */}
         {activeGroup && isActualLeader && (
           <View className="mb-6">
             <Text className="text-gray-400 text-xs font-bold uppercase mb-3 ml-1 tracking-widest">Modo de Visualização</Text>
             <View className="bg-white rounded-3xl p-1 shadow-sm border border-gray-100 flex-row">
-              <TouchableOpacity 
-                onPress={() => setActiveRole('member')}
-                className={`flex-1 py-3 rounded-2xl items-center ${activeRole === 'member' ? 'bg-blue-600' : ''}`}
-              >
-                <Text className={`font-bold ${activeRole === 'member' ? 'text-white' : 'text-gray-500'}`}>Integrante</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                onPress={() => setActiveRole('leader')}
-                className={`flex-1 py-3 rounded-2xl items-center ${activeRole === 'leader' ? 'bg-blue-600' : ''}`}
-              >
-                <Text className={`font-bold ${activeRole === 'leader' ? 'text-white' : 'text-gray-500'}`}>Líder</Text>
-              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setActiveRole('member')} className={`flex-1 py-3 rounded-2xl items-center ${activeRole === 'member' ? 'bg-blue-600' : ''}`}><Text className={`font-bold ${activeRole === 'member' ? 'text-white' : 'text-gray-500'}`}>Integrante</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => setActiveRole('leader')} className={`flex-1 py-3 rounded-2xl items-center ${activeRole === 'leader' ? 'bg-blue-600' : ''}`}><Text className={`font-bold ${activeRole === 'leader' ? 'text-white' : 'text-gray-500'}`}>Líder</Text></TouchableOpacity>
             </View>
           </View>
         )}
 
-        {/* Configurações de Notificação */}
+        {/* Notificações */}
         <View className="mb-6">
           <Text className="text-gray-400 text-xs font-bold uppercase mb-3 ml-1 tracking-widest">Notificações</Text>
           <View className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
             <View className="p-4 flex-row items-center justify-between border-b border-gray-50">
               <View className="flex-row items-center">
-                <View className="w-8 h-8 bg-blue-100 rounded-lg items-center justify-center mr-3">
-                  <Ionicons name="notifications" size={18} color="#2563eb" />
-                </View>
+                <View className="w-8 h-8 bg-blue-100 rounded-lg items-center justify-center mr-3"><Ionicons name="notifications" size={18} color="#2563eb" /></View>
                 <Text className="font-bold text-gray-700">Push Notifications</Text>
               </View>
-              <Switch 
-                value={notifications.push} 
-                onValueChange={(v) => setNotifications({...notifications, push: v})} 
-                trackColor={{ false: "#d1d5db", true: "#93c5fd" }}
-                thumbColor={notifications.push ? "#2563eb" : "#f3f4f6"}
-              />
-            </View>
-            <View className="p-4 flex-row items-center justify-between opacity-50">
-              <View className="flex-row items-center">
-                <View className="w-8 h-8 bg-gray-100 rounded-lg items-center justify-center mr-3">
-                  <Ionicons name="mail" size={18} color="#4b5563" />
-                </View>
-                <Text className="font-bold text-gray-700">E-mail (Em breve)</Text>
-              </View>
-              <Switch disabled value={false} />
+              <Switch value={notifications.push} onValueChange={(v) => setNotifications({...notifications, push: v})} trackColor={{ false: "#d1d5db", true: "#93c5fd" }} thumbColor={notifications.push ? "#2563eb" : "#f3f4f6"} />
             </View>
           </View>
         </View>
 
-        {/* Gestão do Grupo (Apenas para Líderes) */}
+        {/* Administração */}
         {isLeader && (
           <View className="mb-6">
             <Text className="text-gray-400 text-xs font-bold uppercase mb-3 ml-1 tracking-widest">Administração</Text>
             <View className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-              <TouchableOpacity 
-                onPress={() => router.push('/manage-members')}
-                className="p-4 flex-row items-center justify-between border-b border-gray-50"
-              >
-                <View className="flex-row items-center">
-                  <View className="w-8 h-8 bg-purple-100 rounded-lg items-center justify-center mr-3">
-                    <Ionicons name="people" size={18} color="#7c3aed" />
-                  </View>
-                  <Text className="font-bold text-gray-700">Gerenciar Integrantes</Text>
-                </View>
+              <TouchableOpacity onPress={() => router.push('/manage-members')} className="p-4 flex-row items-center justify-between border-b border-gray-50">
+                <View className="flex-row items-center"><View className="w-8 h-8 bg-purple-100 rounded-lg items-center justify-center mr-3"><Ionicons name="people" size={18} color="#7c3aed" /></View><Text className="font-bold text-gray-700">Gerenciar Integrantes</Text></View>
                 <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
               </TouchableOpacity>
-              <TouchableOpacity className="p-4 flex-row items-center justify-between border-b border-gray-50">
-                <View className="flex-row items-center">
-                  <View className="w-8 h-8 bg-orange-100 rounded-lg items-center justify-center mr-3">
-                    <Ionicons name="star" size={18} color="#ea580c" />
-                  </View>
-                  <Text className="font-bold text-gray-700">Habilidades do Grupo</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
-              </TouchableOpacity>
-              <TouchableOpacity className="p-4 flex-row items-center justify-between">
-                <View className="flex-row items-center">
-                  <View className="w-8 h-8 bg-red-100 rounded-lg items-center justify-center mr-3">
-                    <Ionicons name="shield-checkmark" size={18} color="#dc2626" />
-                  </View>
-                  <Text className="font-bold text-gray-700">Privacidade e RLS</Text>
-                </View>
+              <TouchableOpacity onPress={() => setFormationModalVisible(true)} className="p-4 flex-row items-center justify-between">
+                <View className="flex-row items-center"><View className="w-8 h-8 bg-blue-100 rounded-lg items-center justify-center mr-3"><Ionicons name="construct" size={18} color="#2563eb" /></View><Text className="font-bold text-gray-700">Formação Padrão</Text></View>
                 <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
               </TouchableOpacity>
             </View>
           </View>
         )}
+
+        {/* Ajuda e Conta */}
+        <View className="mb-6">
+          <Text className="text-gray-400 text-xs font-bold uppercase mb-3 ml-1 tracking-widest">Ajuda e Suporte</Text>
+          <View className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-4">
+            <TouchableOpacity onPress={() => setTutorialVisible(true)} className="p-5 flex-row items-center justify-between">
+                <View className="flex-row items-center"><View className="w-10 h-10 bg-blue-50 rounded-2xl items-center justify-center mr-4"><Ionicons name="book-outline" size={20} color="#2563eb" /></View><Text className="font-bold text-gray-700 text-base">Tutorial de Uso</Text></View>
+                <Ionicons name="chevron-forward" size={20} color="#d1d5db" />
+            </TouchableOpacity>
+          </View>
+
+          <Text className="text-gray-400 text-xs font-bold uppercase mb-3 ml-1 tracking-widest">Conta</Text>
+          <TouchableOpacity onPress={handleSignOut} className="bg-red-50 p-5 rounded-3xl flex-row items-center border border-red-100">
+            <View className="w-10 h-10 bg-red-100 rounded-2xl items-center justify-center mr-4"><Ionicons name="log-out-outline" size={20} color="#dc2626" /></View>
+            <Text className="flex-1 font-bold text-red-600">Sair da Conta</Text>
+          </TouchableOpacity>
+        </View>
 
         <View className="items-center py-4">
           <Text className="text-gray-300 text-xs font-medium">WorshipSync v1.0.0 - MVP</Text>
@@ -143,19 +122,10 @@ export default function SettingsScreen() {
         <View className="h-10" />
       </ScrollView>
 
-      <CreateGroupModal 
-        visible={modalVisible} 
-        onClose={() => setModalVisible(false)} 
-        onSuccess={() => {}} 
-      />
-      <EditGroupModal 
-        visible={editModalVisible} 
-        onClose={() => setEditModalVisible(false)} 
-        groupId={activeGroup?.id || ''}
-        currentName={activeGroup?.name || ''}
-        currentChurch={activeGroup?.church_name}
-        onSuccess={(data) => setActiveGroup({...activeGroup!, ...data})}
-      />
+      <CreateGroupModal visible={modalVisible} onClose={() => setModalVisible(false)} onSuccess={() => {}} />
+      <EditGroupModal visible={editModalVisible} onClose={() => setEditModalVisible(false)} groupId={activeGroup?.id || ''} currentName={activeGroup?.name || ''} currentChurch={activeGroup?.church_name} onSuccess={(data) => setActiveGroup({...activeGroup!, ...data})} />
+      <ManageFormationModal visible={formationModalVisible} onClose={() => setFormationModalVisible(false)} currentFormation={activeGroup?.default_formation} />
+      <TutorialModal visible={tutorialVisible} onClose={() => setTutorialVisible(false)} role={activeRole} />
     </View>
   );
 }
