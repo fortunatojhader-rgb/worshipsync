@@ -1,35 +1,51 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Slot, useRouter, useSegments } from 'expo-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { View, useColorScheme } from 'react-native'
+import { View, ActivityIndicator } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import * as Font from 'expo-font'
+import { Ionicons } from '@expo/vector-icons'
+import * as SplashScreen from 'expo-splash-screen'
 import '../global.css'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../stores/authStore'
 
+SplashScreen.preventAutoHideAsync()
 const queryClient = new QueryClient()
 
 export default function RootLayout() {
   const { user, setUser, setActiveGroup, setActualRole, setActiveRole } = useAuthStore()
-  const systemTheme = useColorScheme()
   const segments = useSegments()
   const router = useRouter()
+  const [appIsReady, setAppIsReady] = useState(false)
+  const [isClient, setIsClient] = useState(false)
 
-  // Determina o tema final
-  const activeTheme = 'light'
+  useEffect(() => {
+    setIsClient(true)
+    async function prepare() {
+      try {
+        await Font.loadAsync(Ionicons.font)
+      } catch (e) {
+        console.warn(e)
+      } finally {
+        setAppIsReady(true)
+        SplashScreen.hideAsync()
+      }
+    }
+    prepare()
+  }, [])
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
       if (session?.user) fetchGroup(session.user.id)
     })
-
+    
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
       if (session?.user) fetchGroup(session.user.id)
       else setActiveGroup(null)
     })
-
     return () => subscription.unsubscribe()
   }, [])
 
@@ -43,7 +59,6 @@ export default function RootLayout() {
     if (data?.groups) {
       setActiveGroup(data.groups)
       setActualRole(data.role)
-      // Se não for líder e estiver no modo líder, reseta pra integrante
       if (data.role !== 'leader') setActiveRole('member')
     }
   }
@@ -54,10 +69,18 @@ export default function RootLayout() {
     if (user && inAuthGroup) router.replace('/(tabs)/home')
   }, [user, segments])
 
+  if (!appIsReady || !isClient) {
+    return (
+        <View className="flex-1 items-center justify-center bg-white">
+            <ActivityIndicator size="large" />
+        </View>
+    )
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <View style={{ flex: 1 }} className={activeTheme === 'dark' ? 'dark' : ''}>
+        <View style={{ flex: 1 }} className="light">
           <View className="flex-1 bg-white dark:bg-black">
             <Slot />
           </View>
