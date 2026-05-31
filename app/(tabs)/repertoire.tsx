@@ -55,10 +55,10 @@ export default function RepertoireScreen() {
                       <Text className="font-bold text-gray-800">{song.title}</Text>
                       <Text className="text-xs text-gray-400 mb-1">{song.artist} • {song.default_bpm} BPM</Text>
                       <View className="flex-row gap-x-1">
-                        {song.youtube_url && <Ionicons name="logo-youtube" size={14} color="#ef4444" />}
-                        {song.spotify_url && <Ionicons name="musical-notes" size={14} color="#1db954" />}
-                        {song.cifraclub_url && <Ionicons name="document-text" size={14} color="#2563eb" />}
-                        {song.lyrics && <Ionicons name="text" size={14} color="#6b7280" />}
+                        {song.youtube_url ? <Ionicons name="logo-youtube" size={14} color="#ef4444" /> : null}
+                        {song.spotify_url ? <Ionicons name="musical-notes" size={14} color="#1db954" /> : null}
+                        {song.cifraclub_url ? <Ionicons name="document-text" size={14} color="#2563eb" /> : null}
+                        {song.lyrics ? <Ionicons name="text" size={14} color="#6b7280" /> : null}
                       </View>
                     </View>
                     <View className="items-end ml-2">
