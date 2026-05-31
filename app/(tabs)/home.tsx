@@ -58,7 +58,9 @@ export default function HomeScreen() {
                     <Ionicons name="mic-outline" size={20} color="#6b7280" style={{marginRight: 12}} />
                     <View className="flex-1">
                       <Text className="font-bold text-gray-700 text-sm">{rehearsal.title}</Text>
-                      <Text className="text-gray-400 text-xs">{new Date(rehearsal.event_date).toLocaleString()}</Text>
+                      <Text className="text-gray-400 text-xs">
+                        {new Date(rehearsal.event_date).toLocaleDateString()} • {new Date(rehearsal.event_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </Text>
                     </View>
                   </View>
                 ))}
@@ -69,7 +71,9 @@ export default function HomeScreen() {
             <TouchableOpacity onPress={() => setDetailsEvent(nextService)} className="bg-blue-600 p-6 rounded-3xl shadow-lg mb-6">
               <Text className="text-blue-100 text-xs font-bold uppercase tracking-wider mb-1">Próxima Ministração</Text>
               <Text className="text-white text-xl font-bold mb-1">{nextService.title}</Text>
-              <Text className="text-blue-50 text-sm mb-4">{new Date(nextService.event_date).toLocaleString()}</Text>
+              <Text className="text-blue-50 text-sm mb-4">
+                {new Date(nextService.event_date).toLocaleDateString()} • {new Date(nextService.event_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </Text>
               <Text className="text-blue-50 text-sm">{nextService.location}</Text>
             </TouchableOpacity>
           </>

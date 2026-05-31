@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, TouchableOpacity, ScrollView, Alert, ActivityIndicator, TextInput } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../stores/authStore';
@@ -22,8 +22,11 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
   const [detailsSong, setDetailsSong] = useState<any | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [themeTitle, setThemeTitle] = useState(event?.theme_title || '');
-  const [themeVerse, setThemeVerse] = useState(event?.theme_verse || '');
+  const [isEditingTime, setIsEditingTime] = useState(false);
+  
+  const [themeTitle, setThemeTitle] = useState('');
+  const [themeVerse, setThemeVerse] = useState('');
+  const [eventTime, setEventTime] = useState('');
 
   const { activeRole } = useAuthStore();
   const isLeader = activeRole === 'leader';
@@ -34,10 +37,20 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
   const deleteSetlistItem = useDeleteSetlistItem();
   const updateEvent = useUpdateEvent();
 
+  // Mock de escalados (Seção 4.7)
   const roster = [
     { id: '1', name: 'Ana Souza', inst: 'Vocal', status: 'confirmed', color: '#16a34a' },
     { id: '2', name: 'João Rocha', inst: 'Bateria', status: 'pending', color: '#ca8a04' },
   ];
+
+  useEffect(() => {
+    if (event) {
+        setThemeTitle(event.theme_title || '');
+        setThemeVerse(event.theme_verse || '');
+        const date = new Date(event.event_date);
+        setEventTime(`${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`);
+    }
+  }, [event]);
 
   const handleGenerateScale = () => {
     Alert.alert('Escala', 'Chamando algoritmo de escala automática...');
@@ -63,19 +76,27 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
     await updateOrder.mutateAsync({ id: targetItem.id, newOrder: currentOrder });
   };
 
-  const handleUpdateTheme = async () => {
+  const handleSaveEvent = async () => {
     try {
+      const [hours, minutes] = eventTime.split(':');
+      const newDate = new Date(event.event_date);
+      newDate.setHours(parseInt(hours), parseInt(minutes));
+
       await updateEvent.mutateAsync({
         id: event.id,
         theme_title: themeTitle,
-        theme_verse: themeVerse
+        theme_verse: themeVerse,
+        event_date: newDate.toISOString()
       });
+      
+      // Atualiza o objeto local
       event.theme_title = themeTitle;
       event.theme_verse = themeVerse;
+      event.event_date = newDate.toISOString();
       
-      Alert.alert('Sucesso', 'Tema atualizado com sucesso!');
-      setIsEditing(false); 
-      onSuccess(); 
+      Alert.alert('Sucesso', 'Informações atualizadas!');
+      setIsEditingTime(false);
+      onSuccess();
     } catch (error: any) {
       Alert.alert('Erro', error.message);
     }
@@ -86,7 +107,19 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
       <View className="flex-1 bg-black/50 justify-end">
         <View className="bg-white rounded-t-3xl p-6 h-[90%]">
           <View className="flex-row justify-between items-center mb-6">
-            <Text className="text-2xl font-bold text-gray-800">{event?.title}</Text>
+            <View className="flex-1">
+                <Text className="text-2xl font-bold text-gray-800">{event?.title}</Text>
+                <View className="flex-row items-center mt-2">
+                    <Text className="text-gray-500 font-medium">
+                        {new Date(event?.event_date).toLocaleDateString()} • {eventTime}
+                    </Text>
+                    {isLeader && (
+                        <TouchableOpacity onPress={() => setIsEditingTime(!isEditingTime)} className="ml-2">
+                            <Ionicons name="pencil" size={16} color={isEditingTime ? "#dc2626" : "#2563eb"} />
+                        </TouchableOpacity>
+                    )}
+                </View>
+            </View>
             <View className="flex-row items-center">
               {isLeader && (
                 <TouchableOpacity onPress={() => setIsEditing(!isEditing)} className="mr-3">
@@ -100,6 +133,14 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
               </TouchableOpacity>
             </View>
           </View>
+
+          {isEditingTime && (
+              <View className="bg-gray-100 p-4 rounded-2xl mb-4">
+                  <Text className="font-bold mb-2 text-sm text-gray-700">Alterar Horário:</Text>
+                  <TextInput className="bg-white p-3 rounded-xl border border-gray-200" value={eventTime} onChangeText={setEventTime} placeholder="HH:MM" />
+                  <TouchableOpacity onPress={handleSaveEvent} className="bg-blue-600 mt-3 p-3 rounded-xl items-center"><Text className="text-white font-bold">Salvar Horário</Text></TouchableOpacity>
+              </View>
+          )}
 
           <View className="bg-gray-100 rounded-2xl p-1 flex-row mb-6">
             <TouchableOpacity onPress={() => setTab('roster')} className={`flex-1 py-2 rounded-xl items-center ${tab === 'roster' ? 'bg-white shadow-sm' : ''}`}><Text className={`font-bold text-xs ${tab === 'roster' ? 'text-blue-600' : 'text-gray-500'}`}>Equipe</Text></TouchableOpacity>
@@ -154,7 +195,7 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                   setlist?.length === 0 ? 
                   <Text className="text-gray-600">Nenhuma música no setlist.</Text> :
                   setlist?.map((item: any) => (
-                    <TouchableOpacity key={item.id} disabled={isEditing} onPress={() => setDetailsSong(item.songs)} className="bg-white p-3 rounded-lg mb-2 flex-row justify-between items-center shadow-sm border border-gray-100">
+                    <TouchableOpacity key={item.id} disabled={isEditing} onPress={() => setDetailsSong(item.songs)} className="bg-white p-4 rounded-2xl mb-3 shadow-sm border border-gray-100 flex-row justify-between items-center">
                       <View className="flex-row items-center flex-1">
                         {isLeader && isEditing && (
                           <View className="mr-2">
@@ -162,12 +203,21 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                             <TouchableOpacity onPress={() => moveSong(item, 'down')}><Ionicons name="chevron-down" size={16}/></TouchableOpacity>
                           </View>
                         )}
-                        <Text className="font-bold text-gray-700">{(item.songs as any)?.title}</Text>
+                        <View className="flex-1 ml-1">
+                          <Text className="font-bold text-gray-800">{(item.songs as any)?.title}</Text>
+                          <Text className="text-xs text-gray-400 mb-1">{(item.songs as any)?.artist} • {(item.songs as any)?.default_bpm} BPM</Text>
+                          <View className="flex-row gap-x-1">
+                            {(item.songs as any)?.youtube_url && <Ionicons name="logo-youtube" size={14} color="#ef4444" />}
+                            {(item.songs as any)?.spotify_url && <Ionicons name="musical-notes" size={14} color="#1db954" />}
+                            {(item.songs as any)?.cifraclub_url && <Ionicons name="document-text" size={14} color="#2563eb" />}
+                            {(item.songs as any)?.lyrics && <Ionicons name="text" size={14} color="#6b7280" />}
+                          </View>
+                        </View>
                       </View>
-                      <View className="flex-row items-center">
-                        <Text className="text-blue-600 font-bold mr-3">{(item.songs as any)?.default_key}</Text>
+                      <View className="items-end ml-2">
+                        <Text className="font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg mb-1">{(item.songs as any)?.default_key}</Text>
                         {isLeader && isEditing && (
-                          <TouchableOpacity onPress={() => setDeleteItemId(item.id)}>
+                          <TouchableOpacity onPress={() => setDeleteItemId(item.id)} className="p-1">
                             <Ionicons name="trash" size={18} color="#ef4444" />
                           </TouchableOpacity>
                         )}
@@ -184,7 +234,7 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                     <>
                         <TextInput className="bg-white p-4 rounded-xl mb-3" placeholder="Título do Tema" value={themeTitle} onChangeText={setThemeTitle} />
                         <TextInput className="bg-white p-4 rounded-xl mb-4" placeholder="Versículo/Descrição" value={themeVerse} onChangeText={setThemeVerse} multiline />
-                        <TouchableOpacity onPress={handleUpdateTheme} className="bg-blue-600 p-3 rounded-xl items-center"><Text className="text-white font-bold">Salvar Tema</Text></TouchableOpacity>
+                        <TouchableOpacity onPress={handleSaveEvent} className="bg-blue-600 p-3 rounded-xl items-center"><Text className="text-white font-bold">Salvar Tema</Text></TouchableOpacity>
                     </>
                 ) : (
                     <>

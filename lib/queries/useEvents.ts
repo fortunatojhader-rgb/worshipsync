@@ -46,10 +46,15 @@ export function useUpdateEvent() {
   const { activeGroup } = useAuthStore();
 
   return useMutation({
-    mutationFn: async ({ id, theme_title, theme_verse }: { id: string, theme_title: string, theme_verse: string }) => {
+    mutationFn: async ({ id, theme_title, theme_verse, event_date }: { id: string, theme_title?: string, theme_verse?: string, event_date?: string }) => {
+      const updateData: any = {};
+      if (theme_title !== undefined) updateData.theme_title = theme_title;
+      if (theme_verse !== undefined) updateData.theme_verse = theme_verse;
+      if (event_date !== undefined) updateData.event_date = event_date;
+
       const { error } = await supabase
         .from('events')
-        .update({ theme_title, theme_verse })
+        .update(updateData)
         .eq('id', id);
       if (error) throw error;
     },
