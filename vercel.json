@@ -1,10 +1,20 @@
 {
   "buildCommand": "npx expo export -p web",
   "outputDirectory": "dist",
-  "devCommand": "npx expo start --web",
   "cleanUrls": true,
   "framework": null,
-  "rewrites": [
-    { "source": "/:path*", "destination": "/" }
+  "routes": [
+    {
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "/_expo/(.*)",
+      "dest": "/_expo/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
   ]
 }
