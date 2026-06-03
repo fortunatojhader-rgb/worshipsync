@@ -29,7 +29,12 @@ export function SuggestSongModal({ visible, onClose }: SuggestSongModalProps) {
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 bg-black/50 justify-end">
         <View className="bg-white rounded-t-3xl p-6 h-[80%]">
-          <Text className="text-xl font-bold mb-6">Sugerir Música</Text>
+          <View className="flex-row justify-between items-center mb-6">
+            <Text className="text-xl font-bold">Sugerir Música</Text>
+            <TouchableOpacity onPress={onClose} className="p-2 bg-gray-100 rounded-full">
+              <Ionicons name="close" size={20} color="#374151" />
+            </TouchableOpacity>
+          </View>
           
           <ScrollView className="flex-1">
             <Text className="text-gray-700 font-bold mb-2">Nome da Música</Text>
