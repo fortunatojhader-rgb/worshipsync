@@ -7,7 +7,7 @@ import { DeleteSetlistModal } from './DeleteSetlistModal';
 import { SongDetailsModal } from './SongDetailsModal';
 import { MemberProfileModal } from './MemberProfileModal';
 import { useSetlistItems, useAddSetlistItem } from '../lib/queries/useSetlist';
-import { useUpdateSetlistOrder, useUpdateSetlistItemVocalist } from '../lib/queries/useSetlistMutations';
+import { useUpdateSetlistOrder, useUpdateSetlistItemVocalist, useUpdateSetlistItemKey } from '../lib/queries/useSetlistMutations';
 import { useUpdateEvent, useGenerateScale } from '../lib/queries/useEvents';
 import { useEventRoster } from '../lib/queries/useMembers';
 
@@ -40,6 +40,7 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
   const addSetlist = useAddSetlistItem();
   const updateOrder = useUpdateSetlistOrder();
   const updateVocalist = useUpdateSetlistItemVocalist();
+  const updateKey = useUpdateSetlistItemKey();
   const updateEvent = useUpdateEvent();
   const generateScale = useGenerateScale();
 
@@ -60,6 +61,14 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
       await updateVocalist.mutateAsync({ id: itemId, vocalistId });
     } catch (error: any) {
       Alert.alert('Erro', error.message);
+    }
+  };
+
+  const handleUpdateKey = async (itemId: string, key: string) => {
+    try {
+      await updateKey.mutateAsync({ id: itemId, key });
+    } catch (error: any) {
+      console.error(error);
     }
   };
 
@@ -260,11 +269,22 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                         </View>
                       </View>
                       <View className="items-end ml-2">
-                        <Text className="font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg mb-1">{(item.songs as any)?.default_key}</Text>
-                        {isLeader && isEditing && (
-                          <TouchableOpacity onPress={() => setDeleteItemId(item.id)} className="p-1">
-                            <Ionicons name="trash" size={18} color="#ef4444" />
-                          </TouchableOpacity>
+                        {isLeader && isEditing ? (
+                          <View className="items-end">
+                            <TextInput 
+                              className="font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg mb-1 text-center w-12"
+                              defaultValue={item.key || (item.songs as any)?.default_key}
+                              onBlur={(e) => handleUpdateKey(item.id, e.nativeEvent.text)}
+                              placeholder="Tom"
+                            />
+                            <TouchableOpacity onPress={() => setDeleteItemId(item.id)} className="p-1">
+                              <Ionicons name="trash" size={18} color="#ef4444" />
+                            </TouchableOpacity>
+                          </View>
+                        ) : (
+                          <Text className="font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg mb-1">
+                            {item.key || (item.songs as any)?.default_key || '-'}
+                          </Text>
                         )}
                       </View>
                     </TouchableOpacity>

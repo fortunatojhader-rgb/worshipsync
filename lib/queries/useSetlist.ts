@@ -13,6 +13,7 @@ export function useSetlistItems(eventId: string) {
           id,
           display_order,
           vocalist_id,
+          key,
           songs (*),
           vocalist:group_members!vocalist_id (
             id,

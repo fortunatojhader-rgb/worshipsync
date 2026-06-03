@@ -47,3 +47,19 @@ export function useUpdateSetlistItemVocalist() {
     }
   });
 }
+
+export function useUpdateSetlistItemKey() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, key }: { id: string, key: string | null }) => {
+      const { error } = await supabase
+        .from('setlist_items')
+        .update({ key })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['setlist'] });
+    }
+  });
+}
