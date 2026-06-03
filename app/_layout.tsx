@@ -88,7 +88,7 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <View style={{ flex: 1 }} className={activeTheme}>
+        <View style={{ flex: 1 }} className={activeTheme} key={activeTheme}>
           <View className="flex-1 bg-white dark:bg-black">
             <Slot />
           </View>
