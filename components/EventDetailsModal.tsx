@@ -205,42 +205,55 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                 
                 {loadingRoster ? <ActivityIndicator /> : (
                   roster?.length === 0 ? <Text className="text-gray-400 text-center py-8 italic">Ninguém escalado ainda.</Text> :
-                  roster?.map((p: any) => (
-                    <View key={p.id} className="bg-white p-4 rounded-2xl mb-3 shadow-sm border border-gray-100 flex-row items-center justify-between">
-                      <TouchableOpacity onPress={() => setSelectedMember(p.group_members)} className="flex-row items-center flex-1">
-                        <View className="w-10 h-10 bg-blue-50 rounded-full items-center justify-center mr-3 overflow-hidden">
-                          {p.group_members?.users?.photo_url ? (
-                              <Image source={{ uri: p.group_members.users.photo_url }} className="w-full h-full" />
-                          ) : (
-                              <Ionicons name="person" size={20} color="#2563eb" />
-                          )}
-                        </View>
-                        <View>
-                          <Text className="font-bold text-gray-800">{p.group_members?.users?.display_name}</Text>
-                          <Text className="text-gray-400 text-xs uppercase font-bold tracking-widest">{p.instrument}</Text>
-                        </View>
-                      </TouchableOpacity>
-                      {isLeader && isEditing && (
-                        <TouchableOpacity onPress={() => handleRemoveMember(p.id)} className="p-2">
-                          <Ionicons name="trash" size={18} color="#ef4444" />
-                        </TouchableOpacity>
-                      )}
-                      {!isEditing && (
-                          <View className="items-end">
-                            <View className="flex-row items-center mb-1">
-                              <View className={`w-2 h-2 rounded-full mr-2 ${
-                                p.status === 'confirmed' ? 'bg-green-500' : 
-                                p.status === 'declined' ? 'bg-red-500' : 'bg-yellow-500'
-                              }`} />
-                              <Text className={`text-[10px] font-bold uppercase ${
-                                p.status === 'confirmed' ? 'text-green-600' : 
-                                p.status === 'declined' ? 'text-red-600' : 'text-yellow-600'
-                              }`}>{p.status === 'confirmed' ? 'Confirmado' : p.status === 'declined' ? 'Recusado' : 'Pendente'}</Text>
+                  (() => {
+                    // Agrupa por membro
+                    const members = roster.reduce((acc: any, p: any) => {
+                        const id = p.group_members.id;
+                        if (!acc[id]) {
+                            acc[id] = { ...p, instrument: [p.instrument] };
+                        } else {
+                            acc[id].instrument.push(p.instrument);
+                        }
+                        return acc;
+                    }, {});
+
+                    return Object.values(members).map((p: any) => (
+                        <View key={p.id} className="bg-white p-4 rounded-2xl mb-3 shadow-sm border border-gray-100 flex-row items-center justify-between">
+                        <TouchableOpacity onPress={() => setSelectedMember(p.group_members)} className="flex-row items-center flex-1">
+                            <View className="w-10 h-10 bg-blue-50 rounded-full items-center justify-center mr-3 overflow-hidden">
+                            {p.group_members?.users?.photo_url ? (
+                                <Image source={{ uri: p.group_members.users.photo_url }} className="w-full h-full" />
+                            ) : (
+                                <Ionicons name="person" size={20} color="#2563eb" />
+                            )}
                             </View>
-                          </View>
-                      )}
-                    </View>
-                  ))
+                            <View>
+                            <Text className="font-bold text-gray-800">{p.group_members?.users?.display_name}</Text>
+                            <Text className="text-gray-400 text-xs uppercase font-bold tracking-widest">{p.instrument.join(' / ')}</Text>
+                            </View>
+                        </TouchableOpacity>
+                        {isLeader && isEditing && (
+                            <TouchableOpacity onPress={() => handleRemoveMember(p.id)} className="p-2">
+                            <Ionicons name="trash" size={18} color="#ef4444" />
+                            </TouchableOpacity>
+                        )}
+                        {!isEditing && (
+                            <View className="items-end">
+                                <View className="flex-row items-center mb-1">
+                                <View className={`w-2 h-2 rounded-full mr-2 ${
+                                    p.status === 'confirmed' ? 'bg-green-500' : 
+                                    p.status === 'declined' ? 'bg-red-500' : 'bg-yellow-500'
+                                }`} />
+                                <Text className={`text-[10px] font-bold uppercase ${
+                                    p.status === 'confirmed' ? 'text-green-600' : 
+                                    p.status === 'declined' ? 'text-red-600' : 'text-yellow-600'
+                                }`}>{p.status === 'confirmed' ? 'Confirmado' : p.status === 'declined' ? 'Recusado' : 'Pendente'}</Text>
+                                </View>
+                            </View>
+                        )}
+                        </View>
+                    ));
+                  })()
                 )}
                 
                 {isLeader && isEditing && (
