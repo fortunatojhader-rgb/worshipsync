@@ -24,6 +24,7 @@ export default function RootLayout() {
   const [isClient, setIsClient] = useState(false)
 
   const activeTheme = theme === 'system' ? (systemColorScheme ?? 'light') : theme
+  const isDark = activeTheme === 'dark';
 
   useEffect(() => {
     setIsClient(true)
