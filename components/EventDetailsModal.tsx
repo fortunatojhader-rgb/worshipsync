@@ -163,7 +163,7 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                 </View>
             </View>
             <View className="flex-row items-center">
-              {isLeader && event.type === 'service' && (
+              {isLeader && event?.type === 'service' && (
                 <TouchableOpacity onPress={() => setIsEditing(!isEditing)} className="mr-3">
                   <Text className={`font-bold ${isEditing ? 'text-red-600' : 'text-blue-600'}`}>
                     {isEditing ? 'Concluir' : 'Editar'}
