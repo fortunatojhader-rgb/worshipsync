@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, ScrollView, Linking, ActivityIndicator } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { useSongStats } from '../lib/queries/useSongStats';
 
 interface SongDetailsModalProps {
@@ -34,8 +34,9 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
     </View>
   );
 
-  const MaterialButton = ({ icon, label, url, color }: { icon: any, label: string, url: string | null | undefined, color: string }) => {
+  const MaterialButton = ({ icon, label, url, color, library = 'Ionicons' }: { icon: any, label: string, url: string | null | undefined, color: string, library?: 'Ionicons' | 'FontAwesome' }) => {
     const isActive = !!url;
+    const IconComponent = library === 'FontAwesome' ? FontAwesome : Ionicons;
     return (
       <TouchableOpacity 
         onPress={() => isActive && openLink(url)} 
@@ -43,7 +44,7 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
         disabled={!isActive}
       >
         <View className={`w-12 h-12 rounded-2xl items-center justify-center mb-1 ${isActive ? `bg-${color.replace('#','')}-100` : 'bg-gray-100'}`}>
-          <Ionicons name={icon} size={24} color={isActive ? color : '#9ca3af'} />
+          <IconComponent name={icon} size={24} color={isActive ? color : '#9ca3af'} />
         </View>
         <Text className={`text-[10px] font-bold ${isActive ? 'text-gray-600' : 'text-gray-300'}`}>{label}</Text>
       </TouchableOpacity>
@@ -92,7 +93,7 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
                     <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">Materiais</Text>
                     <View className="flex-row gap-x-6 mb-8">
                       <MaterialButton icon="logo-youtube" label="YouTube" url={song.youtube_url} color="#ef4444" />
-                      <MaterialButton icon="logo-spotify" label="Spotify" url={song.spotify_url} color="#1db954" />
+                      <MaterialButton icon="spotify" label="Spotify" url={song.spotify_url} color="#1db954" library="FontAwesome" />
                       <MaterialButton icon="document-text" label="Cifra" url={song.cifraclub_url} color="#2563eb" />
                     </View>
 

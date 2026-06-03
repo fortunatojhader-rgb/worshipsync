@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { useAuthStore } from '../../stores/authStore';
 import { useSongs } from '../../lib/queries/useSongs';
 import { AddSongModal } from '../../components/AddSongModal';
@@ -56,7 +56,7 @@ export default function RepertoireScreen() {
                       <Text className="text-xs text-gray-400 mb-1">{song.artist} • {song.default_bpm} BPM</Text>
                       <View className="flex-row gap-x-1">
                         {song.youtube_url ? <Ionicons name="logo-youtube" size={14} color="#ef4444" /> : null}
-                        {song.spotify_url ? <Ionicons name="logo-spotify" size={14} color="#1db954" /> : null}
+                        {song.spotify_url ? <FontAwesome name="spotify" size={14} color="#1db954" /> : null}
                         {song.cifraclub_url ? <Ionicons name="document-text" size={14} color="#2563eb" /> : null}
                         {song.lyrics ? <Ionicons name="text" size={14} color="#6b7280" /> : null}
                       </View>
