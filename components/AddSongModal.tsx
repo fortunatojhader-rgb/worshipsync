@@ -46,7 +46,7 @@ export function AddSongModal({ visible, onClose }: AddSongModalProps) {
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 bg-black/50 items-center justify-center p-4">
-        <View className="bg-white p-6 rounded-3xl w-full max-w-sm">
+        <View className="glass p-6 rounded-3xl w-full max-w-sm">
           <View className="flex-row justify-between items-center mb-6">
             <Text className="text-xl font-bold">Adicionar Música</Text>
             <TouchableOpacity onPress={onClose}><Ionicons name="close" size={24} /></TouchableOpacity>

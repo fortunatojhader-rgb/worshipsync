@@ -45,7 +45,7 @@ export function ManageFormationModal({ visible, onClose, currentFormation }: Man
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 bg-black/50 justify-end">
-        <View className="bg-white rounded-t-3xl p-6 h-[80%]">
+        <View className="glass rounded-t-3xl p-6 h-[80%]">
           <View className="flex-row justify-between items-center mb-6">
             <Text className="text-xl font-bold">Formação Padrão</Text>
             <TouchableOpacity onPress={onClose} className="p-2 bg-gray-100 rounded-full">

@@ -62,7 +62,7 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 bg-black/50 justify-end">
-        <View className="bg-white rounded-t-3xl h-[90%]">
+        <View className="glass rounded-t-3xl h-[90%]">
           {/* Header */}
           <View className="p-6 pb-2">
             <View className="flex-row justify-between items-center mb-2">

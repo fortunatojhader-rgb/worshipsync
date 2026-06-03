@@ -15,7 +15,7 @@ export function ConfirmActionModal({ visible, onClose, onConfirm, title, message
   return (
     <Modal visible={visible} animationType="fade" transparent>
       <View className="flex-1 bg-black/50 items-center justify-center p-4">
-        <View className="bg-white p-6 rounded-3xl w-full max-w-sm">
+        <View className="glass p-6 rounded-3xl w-full max-w-sm">
           <Text className="text-xl font-bold mb-2 text-gray-800">{title}</Text>
           <Text className="text-gray-600 mb-6">{message}</Text>
           

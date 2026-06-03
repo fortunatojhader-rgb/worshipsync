@@ -19,7 +19,7 @@ export function AddToSetlistModal({ visible, onClose, onAdd }: AddToSetlistModal
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 bg-black/50 justify-end">
-        <View className="bg-white rounded-t-3xl p-6 h-[80%]">
+        <View className="glass rounded-t-3xl p-6 h-[80%]">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-xl font-bold">Adicionar ao Setlist</Text>
             <TouchableOpacity onPress={onClose}><Ionicons name="close" size={24} /></TouchableOpacity>

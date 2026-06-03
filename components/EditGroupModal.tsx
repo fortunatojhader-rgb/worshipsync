@@ -39,7 +39,7 @@ export function EditGroupModal({ visible, onClose, groupId, currentName, current
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 bg-black/50 items-center justify-center p-4">
-        <View className="bg-white p-6 rounded-3xl w-full max-w-sm">
+        <View className="glass p-6 rounded-3xl w-full max-w-sm">
           <Text className="text-xl font-bold mb-4">Editar Grupo</Text>
           <TextInput
             className="bg-gray-100 p-4 rounded-xl mb-3"

@@ -125,7 +125,7 @@ export function AddImpedimentModal({ visible, onClose }: AddImpedimentModalProps
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 bg-black/50 justify-end">
-        <View className="bg-white rounded-t-3xl p-6 h-[90%] dark:bg-gray-900">
+        <View className="glass rounded-t-3xl p-6 h-[90%] dark:bg-gray-900">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-xl font-bold dark:text-white">Novo Impedimento</Text>
             <TouchableOpacity onPress={onClose} className="p-2 bg-gray-100 rounded-full dark:bg-gray-800">

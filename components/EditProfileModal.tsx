@@ -39,7 +39,7 @@ export function EditProfileModal({ visible, onClose, profile }: EditProfileModal
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 bg-black/50 justify-end">
-        <View className="bg-white rounded-t-3xl p-6 h-[70%]">
+        <View className="glass rounded-t-3xl p-6 h-[70%]">
           <Text className="text-xl font-bold mb-4">Editar Perfil</Text>
           
           <ScrollView className="flex-1">

@@ -60,7 +60,7 @@ export function EditSongModal({ visible, onClose, song }: EditSongModalProps) {
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 bg-black/50 justify-end">
-        <View className="bg-white rounded-t-3xl p-6 h-[90%]">
+        <View className="glass rounded-t-3xl p-6 h-[90%]">
           <Text className="text-xl font-bold mb-4">Editar Música</Text>
           <ScrollView>
             <TextInput className="bg-gray-100 p-4 rounded-xl mb-3" placeholder="Título" value={title} onChangeText={setTitle} />
