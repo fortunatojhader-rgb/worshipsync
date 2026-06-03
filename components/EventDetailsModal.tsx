@@ -147,7 +147,7 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 bg-black/50 justify-end">
-        <View className="bg-white rounded-t-3xl p-6 h-[90%]">
+        <View className="glass rounded-[32px] p-6 h-[90%]">
           <View className="flex-row justify-between items-center mb-6">
             <View className="flex-1">
                 <Text className="text-2xl font-bold text-gray-800">{event?.title}</Text>
