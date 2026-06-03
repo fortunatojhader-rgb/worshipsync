@@ -1,20 +1,30 @@
 import { Tabs } from 'expo-router'
 import { useAuthStore } from '../../stores/authStore'
+import { useThemeStore } from '../../stores/themeStore'
 import { Ionicons } from '@expo/vector-icons'
+import { useColorScheme } from 'react-native'
 
 export default function TabsLayout() {
   const { activeRole } = useAuthStore()
+  const { theme } = useThemeStore()
+  const systemColorScheme = useColorScheme()
+  const isDark = (theme === 'system' ? systemColorScheme : theme) === 'dark'
+  
   const isLeader = activeRole === 'leader'
+
+  const bgColor = isDark ? '#000000' : '#ffffff'
+  const headerBg = isDark ? '#1f2937' : '#f8fafc'
+  const textColor = isDark ? '#ffffff' : '#000000'
 
   return (
     <Tabs screenOptions={{ 
       tabBarActiveTintColor: '#2563eb',
       headerShown: true,
-      headerStyle: { backgroundColor: '#f8fafc' },
-      headerTitleStyle: { fontWeight: 'bold' },
-      tabBarStyle: { height: 60, paddingBottom: 8, backgroundColor: '#ffffff' },
+      headerStyle: { backgroundColor: headerBg },
+      headerTitleStyle: { color: textColor, fontWeight: 'bold' },
+      tabBarStyle: { height: 60, paddingBottom: 8, backgroundColor: bgColor, borderTopColor: isDark ? '#374151' : '#e5e7eb' },
       animation: 'shift',
-      sceneContainerStyle: { backgroundColor: '#ffffff' },
+      sceneContainerStyle: { backgroundColor: isDark ? '#000000' : '#f9fafb' },
     }}>
       {/* 1. Painel / Início (Sempre visível) */}
       <Tabs.Screen 
