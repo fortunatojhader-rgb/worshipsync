@@ -12,7 +12,12 @@ export function useSetlistItems(eventId: string) {
         .select(`
           id,
           display_order,
-          songs (*)
+          vocalist_id,
+          songs (*),
+          vocalist:group_members!vocalist_id (
+            id,
+            users (display_name)
+          )
         `)
         .eq('event_id', eventId)
         .order('display_order');

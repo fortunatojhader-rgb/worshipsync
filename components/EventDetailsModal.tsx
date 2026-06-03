@@ -7,7 +7,7 @@ import { DeleteSetlistModal } from './DeleteSetlistModal';
 import { SongDetailsModal } from './SongDetailsModal';
 import { MemberProfileModal } from './MemberProfileModal';
 import { useSetlistItems, useAddSetlistItem } from '../lib/queries/useSetlist';
-import { useUpdateSetlistOrder } from '../lib/queries/useSetlistMutations';
+import { useUpdateSetlistOrder, useUpdateSetlistItemVocalist } from '../lib/queries/useSetlistMutations';
 import { useUpdateEvent, useGenerateScale } from '../lib/queries/useEvents';
 import { useEventRoster } from '../lib/queries/useMembers';
 
@@ -39,8 +39,12 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
   
   const addSetlist = useAddSetlistItem();
   const updateOrder = useUpdateSetlistOrder();
+  const updateVocalist = useUpdateSetlistItemVocalist();
   const updateEvent = useUpdateEvent();
   const generateScale = useGenerateScale();
+
+  // Membros que podem ser ministros (Vocais)
+  const vocals = roster?.filter((p: any) => p.instrument === 'Vocal') || [];
 
   useEffect(() => {
     if (event) {
@@ -50,6 +54,14 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
         setEventTime(`${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`);
     }
   }, [event, visible]);
+
+  const handleUpdateVocalist = async (itemId: string, vocalistId: string | null) => {
+    try {
+      await updateVocalist.mutateAsync({ id: itemId, vocalistId });
+    } catch (error: any) {
+      Alert.alert('Erro', error.message);
+    }
+  };
 
   const handleGenerateScale = async () => {
     try {
@@ -215,6 +227,36 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                         <View className="flex-1 ml-1">
                           <Text className="font-bold text-gray-800">{(item.songs as any)?.title}</Text>
                           <Text className="text-xs text-gray-400 mb-1">{(item.songs as any)?.artist} • {(item.songs as any)?.default_bpm} BPM</Text>
+                          
+                          {/* Seleção de Ministro */}
+                          <View className="flex-row items-center mt-1">
+                            <Ionicons name="mic-outline" size={12} color="#6b7280" />
+                            {isLeader && isEditing ? (
+                              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="ml-1">
+                                <TouchableOpacity 
+                                  onPress={() => handleUpdateVocalist(item.id, null)}
+                                  className={`px-2 py-0.5 rounded-md mr-1 ${!item.vocalist_id ? 'bg-blue-100' : 'bg-gray-100'}`}
+                                >
+                                  <Text className={`text-[9px] ${!item.vocalist_id ? 'text-blue-600 font-bold' : 'text-gray-500'}`}>Ninguém</Text>
+                                </TouchableOpacity>
+                                {vocals.map((v: any) => (
+                                  <TouchableOpacity 
+                                    key={v.group_members.id}
+                                    onPress={() => handleUpdateVocalist(item.id, v.group_members.id)}
+                                    className={`px-2 py-0.5 rounded-md mr-1 ${item.vocalist_id === v.group_members.id ? 'bg-blue-100' : 'bg-gray-100'}`}
+                                  >
+                                    <Text className={`text-[9px] ${item.vocalist_id === v.group_members.id ? 'text-blue-600 font-bold' : 'text-gray-500'}`}>
+                                      {v.group_members.users.display_name}
+                                    </Text>
+                                  </TouchableOpacity>
+                                ))}
+                              </ScrollView>
+                            ) : (
+                              <Text className="text-[10px] text-gray-500 ml-1">
+                                {item.vocalist?.users?.display_name || 'Ministro não definido'}
+                              </Text>
+                            )}
+                          </View>
                         </View>
                       </View>
                       <View className="items-end ml-2">

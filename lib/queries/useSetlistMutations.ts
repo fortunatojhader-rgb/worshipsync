@@ -31,3 +31,19 @@ export function useUpdateSetlistOrder() {
     }
   });
 }
+
+export function useUpdateSetlistItemVocalist() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, vocalistId }: { id: string, vocalistId: string | null }) => {
+      const { error } = await supabase
+        .from('setlist_items')
+        .update({ vocalist_id: vocalistId })
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['setlist'] });
+    }
+  });
+}
