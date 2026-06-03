@@ -1,0 +1,18 @@
+export const getCalendarTheme = (isDark: boolean) => ({
+  backgroundColor: isDark ? '#000000' : '#ffffff',
+  calendarBackground: isDark ? '#111827' : '#ffffff',
+  textSectionTitleColor: isDark ? '#9ca3af' : '#6b7280',
+  textSectionTitleDisabledColor: isDark ? '#374151' : '#d1d5db',
+  selectedDayBackgroundColor: '#2563eb',
+  selectedDayTextColor: '#ffffff',
+  todayTextColor: '#2563eb',
+  dayTextColor: isDark ? '#f9fafb' : '#1f2937',
+  textDisabledColor: isDark ? '#4b5563' : '#d1d5db',
+  dotColor: '#2563eb',
+  selectedDotColor: '#ffffff',
+  arrowColor: '#2563eb',
+  monthTextColor: isDark ? '#f9fafb' : '#1f2937',
+  textDayFontFamily: 'System',
+  textMonthFontFamily: 'System',
+  textDayHeaderFontFamily: 'System',
+});

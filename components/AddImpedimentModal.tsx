@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, ActivityIndicator, Alert, ScrollView } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, ActivityIndicator, Alert, ScrollView, useColorScheme } from 'react-native';
 import { Calendar, DateData } from 'react-native-calendars';
 import { Ionicons } from '@expo/vector-icons';
 import { useAddAvailability } from '../lib/queries/useAvailability';
+import { getCalendarTheme } from '../constants/calendarTheme';
+import { useThemeStore } from '../stores/themeStore';
 
 interface AddImpedimentModalProps {
   visible: boolean;
@@ -22,6 +24,9 @@ const DAYS_OF_WEEK = [
 export function AddImpedimentModal({ visible, onClose }: AddImpedimentModalProps) {
   const [type, setType] = useState<'once' | 'period' | 'recurring'>('once');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const { theme } = useThemeStore();
+  const systemColorScheme = useColorScheme();
+  const isDark = (theme === 'system' ? systemColorScheme : theme) === 'dark';
   
   // Período
   const [startDate, setStartDate] = useState<string | null>(null);
@@ -120,23 +125,23 @@ export function AddImpedimentModal({ visible, onClose }: AddImpedimentModalProps
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 bg-black/50 justify-end">
-        <View className="bg-white rounded-t-3xl p-6 h-[90%]">
+        <View className="bg-white rounded-t-3xl p-6 h-[90%] dark:bg-gray-900">
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-xl font-bold">Novo Impedimento</Text>
-            <TouchableOpacity onPress={onClose} className="p-2 bg-gray-100 rounded-full">
+            <Text className="text-xl font-bold dark:text-white">Novo Impedimento</Text>
+            <TouchableOpacity onPress={onClose} className="p-2 bg-gray-100 rounded-full dark:bg-gray-800">
               <Ionicons name="close" size={20} color="#4b5563" />
             </TouchableOpacity>
           </View>
           
           <ScrollView className="flex-1">
-            <View className="bg-gray-100 rounded-2xl p-1 flex-row mb-6">
+            <View className="bg-gray-100 rounded-2xl p-1 flex-row mb-6 dark:bg-gray-800">
               {(['once', 'period', 'recurring'] as const).map((t) => (
                 <TouchableOpacity 
                   key={t}
                   onPress={() => setType(t)}
-                  className={`flex-1 py-2 rounded-xl items-center ${type === t ? 'bg-white shadow-sm' : ''}`}
+                  className={`flex-1 py-2 rounded-xl items-center ${type === t ? 'bg-white shadow-sm dark:bg-gray-700' : ''}`}
                 >
-                  <Text className={`text-[10px] font-bold uppercase ${type === t ? 'text-blue-600' : 'text-gray-500'}`}>
+                  <Text className={`text-[10px] font-bold uppercase ${type === t ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500'}`}>
                     {t === 'once' ? 'Único' : t === 'period' ? 'Período' : 'Recorrente'}
                   </Text>
                 </TouchableOpacity>
@@ -150,13 +155,10 @@ export function AddImpedimentModal({ visible, onClose }: AddImpedimentModalProps
                   markedDates={getMarkedDates()}
                   markingType={type === 'period' ? 'period' : 'dot'}
                   minDate={new Date().toISOString().split('T')[0]}
-                  theme={{
-                    todayTextColor: '#2563eb',
-                    arrowColor: '#2563eb',
-                  }}
+                  theme={getCalendarTheme(isDark)}
                 />
                 {type === 'period' && (
-                  <Text className="text-center text-gray-400 text-[10px] mt-2">
+                  <Text className="text-center text-gray-400 text-[10px] mt-2 dark:text-gray-500">
                     {!startDate ? 'Selecione a data inicial' : (!endDate ? 'Selecione a data final' : 'Intervalo selecionado')}
                   </Text>
                 )}
@@ -166,18 +168,18 @@ export function AddImpedimentModal({ visible, onClose }: AddImpedimentModalProps
             {type === 'recurring' && (
               <View className="mb-6">
                 <View className="flex-row justify-center mb-6">
-                  <View className="bg-gray-100 p-1 rounded-full flex-row">
+                  <View className="bg-gray-100 p-1 rounded-full flex-row dark:bg-gray-800">
                     <TouchableOpacity 
                       onPress={() => setRecurrenceType('weekly')}
-                      className={`px-6 py-2 rounded-full ${recurrenceType === 'weekly' ? 'bg-white shadow-sm' : ''}`}
+                      className={`px-6 py-2 rounded-full ${recurrenceType === 'weekly' ? 'bg-white shadow-sm dark:bg-gray-700' : ''}`}
                     >
-                      <Text className={`text-xs font-bold ${recurrenceType === 'weekly' ? 'text-blue-600' : 'text-gray-400'}`}>Semanal</Text>
+                      <Text className={`text-xs font-bold ${recurrenceType === 'weekly' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400'}`}>Semanal</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
                       onPress={() => setRecurrenceType('monthly')}
-                      className={`px-6 py-2 rounded-full ${recurrenceType === 'monthly' ? 'bg-white shadow-sm' : ''}`}
+                      className={`px-6 py-2 rounded-full ${recurrenceType === 'monthly' ? 'bg-white shadow-sm dark:bg-gray-700' : ''}`}
                     >
-                      <Text className={`text-xs font-bold ${recurrenceType === 'monthly' ? 'text-blue-600' : 'text-gray-400'}`}>Mensal</Text>
+                      <Text className={`text-xs font-bold ${recurrenceType === 'monthly' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400'}`}>Mensal</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -188,9 +190,9 @@ export function AddImpedimentModal({ visible, onClose }: AddImpedimentModalProps
                       <TouchableOpacity 
                         key={d.value}
                         onPress={() => toggleWeekDay(d.value)}
-                        className={`w-12 h-12 rounded-2xl items-center justify-center border ${selectedWeekDays.includes(d.value) ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-200'}`}
+                        className={`w-12 h-12 rounded-2xl items-center justify-center border ${selectedWeekDays.includes(d.value) ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700'}`}
                       >
-                        <Text className={`font-bold text-xs ${selectedWeekDays.includes(d.value) ? 'text-white' : 'text-gray-700'}`}>{d.label}</Text>
+                        <Text className={`font-bold text-xs ${selectedWeekDays.includes(d.value) ? 'text-white' : 'text-gray-700 dark:text-gray-300'}`}>{d.label}</Text>
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -200,9 +202,9 @@ export function AddImpedimentModal({ visible, onClose }: AddImpedimentModalProps
                       <TouchableOpacity 
                         key={day}
                         onPress={() => toggleMonthDay(day)}
-                        className={`w-10 h-10 rounded-xl items-center justify-center border ${selectedMonthDays.includes(day) ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-200'}`}
+                        className={`w-10 h-10 rounded-xl items-center justify-center border ${selectedMonthDays.includes(day) ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700'}`}
                       >
-                        <Text className={`font-bold text-xs ${selectedMonthDays.includes(day) ? 'text-white' : 'text-gray-700'}`}>{day}</Text>
+                        <Text className={`font-bold text-xs ${selectedMonthDays.includes(day) ? 'text-white' : 'text-gray-700 dark:text-gray-300'}`}>{day}</Text>
                       </TouchableOpacity>
                     ))}
                   </View>
@@ -212,8 +214,8 @@ export function AddImpedimentModal({ visible, onClose }: AddImpedimentModalProps
           </ScrollView>
 
           <View className="flex-row space-x-2 mt-4">
-            <TouchableOpacity onPress={onClose} className="flex-1 p-4 rounded-xl bg-gray-200 items-center">
-              <Text className="font-bold">Cancelar</Text>
+            <TouchableOpacity onPress={onClose} className="flex-1 p-4 rounded-xl bg-gray-200 items-center dark:bg-gray-800">
+              <Text className="font-bold dark:text-gray-300">Cancelar</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               onPress={handleSave} 
