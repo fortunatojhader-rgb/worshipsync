@@ -21,6 +21,20 @@ export default function Root({ children }: { children: ReactNode }) {
 
         {/* Using raw CSS styles as an escape-hatch to ensure the background color never flickers in dark-mode. */}
         <style dangerouslySetInnerHTML={{ __html: responsiveBackground }} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              document.addEventListener('gesturestart', function (e) {
+                e.preventDefault();
+              });
+              document.addEventListener('touchstart', function (e) {
+                if (e.touches.length > 1) {
+                  e.preventDefault();
+                }
+              }, { passive: false });
+            `,
+          }}
+        />
         {/* Add any additional <head> elements that you want globally available on web... */}
       </head>
       <body>{children}</body>
