@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Switch } from 'react-native';
 import { useAuthStore } from '../../stores/authStore';
+import { useThemeStore } from '../../stores/themeStore';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { CreateGroupModal } from '../../components/CreateGroupModal';
@@ -11,6 +12,7 @@ import { TutorialModal } from '../../components/TutorialModal';
 export default function SettingsScreen() {
   const router = useRouter();
   const { activeRole, setActiveRole, activeGroup, setActiveGroup, actualRole, signOut } = useAuthStore();
+  const { theme, setTheme } = useThemeStore();
   const [modalVisible, setModalVisible] = useState(false);
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [formationModalVisible, setFormationModalVisible] = useState(false);
@@ -56,6 +58,25 @@ export default function SettingsScreen() {
             </TouchableOpacity>
           </View>
         )}
+
+        {/* Aparência */}
+        <View className="mb-6">
+          <Text className="text-gray-400 text-xs font-bold uppercase mb-3 ml-1 tracking-widest">Aparência</Text>
+          <View className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+            <TouchableOpacity onPress={() => setTheme('light')} className={`p-4 flex-row items-center justify-between border-b border-gray-50 ${theme === 'light' ? 'bg-blue-50' : ''}`}>
+              <Text className={`font-bold ${theme === 'light' ? 'text-blue-600' : 'text-gray-700'}`}>Modo Claro</Text>
+              {theme === 'light' && <Ionicons name="checkmark" size={20} color="#2563eb" />}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setTheme('dark')} className={`p-4 flex-row items-center justify-between border-b border-gray-50 ${theme === 'dark' ? 'bg-blue-50' : ''}`}>
+              <Text className={`font-bold ${theme === 'dark' ? 'text-blue-600' : 'text-gray-700'}`}>Modo Escuro</Text>
+              {theme === 'dark' && <Ionicons name="checkmark" size={20} color="#2563eb" />}
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setTheme('system')} className={`p-4 flex-row items-center justify-between ${theme === 'system' ? 'bg-blue-50' : ''}`}>
+              <Text className={`font-bold ${theme === 'system' ? 'text-blue-600' : 'text-gray-700'}`}>Automático (Sistema)</Text>
+              {theme === 'system' && <Ionicons name="checkmark" size={20} color="#2563eb" />}
+            </TouchableOpacity>
+          </View>
+        </View>
 
         {/* Alternar Role */}
         {activeGroup && isActualLeader && (
