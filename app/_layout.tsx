@@ -77,8 +77,10 @@ export default function RootLayout() {
 
   if (!appIsReady || !isClient) {
     return (
-        <View className={`flex-1 items-center justify-center ${isDark ? 'bg-black' : 'bg-white'}`}>
-            <ActivityIndicator size="large" color={isDark ? "#ffffff" : undefined} />
+        <View style={{ flex: 1 }} className={activeTheme}>
+            <View className="flex-1 items-center justify-center bg-white dark:bg-black">
+                <ActivityIndicator size="large" />
+            </View>
         </View>
     )
   }
