@@ -41,10 +41,18 @@ export function useGroupMetrics() {
         .eq('group_id', activeGroup.id);
 
       const memberFrequencies = (memberStats || []).map(member => {
-          const serviceSchedules = member.schedules.filter((s: any) => s.events?.type !== 'rehearsal');
-          const total = serviceSchedules.length;
-          const confirmed = serviceSchedules.filter((s: any) => s.status === 'confirmed').length;
-          const rate = total > 0 ? (confirmed / total) * 100 : 0;
+          // Conta apenas eventos únicos (ignora múltiplas funções no mesmo evento)
+          const uniqueEventIds = new Set(member.schedules.map((s: any) => s.event_id));
+          const total = uniqueEventIds.size;
+          
+          // Considera confirmado se ao menos uma das funções foi confirmada
+          const confirmedEventIds = new Set(
+            member.schedules
+              .filter((s: any) => s.status === 'confirmed')
+              .map((s: any) => s.event_id)
+          );
+          
+          const rate = total > 0 ? (confirmedEventIds.size / total) * 100 : 0;
           return { name: member.users?.display_name, scales: total, rate };
       }).filter(m => m.scales > 0);
 
