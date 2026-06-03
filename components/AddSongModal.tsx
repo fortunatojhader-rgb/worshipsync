@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, Modal, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAddSong } from '../lib/queries/useSongs';
-import { supabase } from '../lib/supabase';
 
 interface AddSongModalProps {
   visible: boolean;
@@ -12,42 +11,35 @@ interface AddSongModalProps {
 export function AddSongModal({ visible, onClose }: AddSongModalProps) {
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [key, setKey] = useState('');
+  const [bpm, setBpm] = useState('');
+  const [lyrics, setLyrics] = useState('');
+  const [youtube_url, setYoutubeUrl] = useState('');
+  const [spotify_url, setSpotifyUrl] = useState('');
+  
   const addSong = useAddSong();
 
-  const handleAddWithAI = async () => {
-    if (!title || !artist) {
-        Alert.alert('Atenção', 'Preencha o título e o artista para adicionar com IA');
-        return;
+  const handleAdd = async () => {
+    if (!title) {
+      Alert.alert('Erro', 'Título é obrigatório');
+      return;
     }
-    
-    setLoading(true);
+
     try {
-        // 1. Chama a IA
-        const { data, error: aiError } = await supabase.functions.invoke('generate-song-info', {
-            body: { title, artist }
-        });
-        
-        if (aiError) throw aiError;
-        
-        // 2. Adiciona ao repertório com dados da IA
-        await addSong.mutateAsync({
-            title: title, // Usando título original ou sugerido pela IA se preferir data.title
-            artist: artist,
-            default_key: data.default_key || '',
-            default_bpm: data.default_bpm ? parseInt(data.default_bpm) : 0,
-            lyrics: data.lyrics || '',
-            youtube_url: data.youtube_url || '',
-            spotify_url: data.spotify_url || ''
-        });
-        
-        Alert.alert('Sucesso', 'Música adicionada com os dados da IA!');
-        onClose();
-        setTitle(''); setArtist('');
+      await addSong.mutateAsync({
+        title,
+        artist: artist || 'Desconhecido',
+        default_key: key || '',
+        default_bpm: bpm ? parseInt(bpm) : 0,
+        lyrics: lyrics || '',
+        youtube_url: youtube_url || '',
+        spotify_url: spotify_url || ''
+      });
+      Alert.alert('Sucesso', 'Música adicionada!');
+      onClose();
+      setTitle(''); setArtist(''); setKey(''); setBpm(''); setLyrics(''); setYoutubeUrl(''); setSpotifyUrl('');
     } catch (error: any) {
-        Alert.alert('Erro', 'Falha ao processar com IA: ' + error.message);
-    } finally {
-        setLoading(false);
+      Alert.alert('Erro', error.message);
     }
   };
 
@@ -60,11 +52,24 @@ export function AddSongModal({ visible, onClose }: AddSongModalProps) {
             <TouchableOpacity onPress={onClose}><Ionicons name="close" size={24} /></TouchableOpacity>
           </View>
           
-          <TextInput className="bg-gray-100 p-4 rounded-xl mb-3" placeholder="Título da música" value={title} onChangeText={setTitle} />
-          <TextInput className="bg-gray-100 p-4 rounded-xl mb-6" placeholder="Artista" value={artist} onChangeText={setArtist} />
+          <TextInput className="bg-gray-100 p-4 rounded-xl mb-3" placeholder="Título" value={title} onChangeText={setTitle} />
+          <TextInput className="bg-gray-100 p-4 rounded-xl mb-3" placeholder="Artista" value={artist} onChangeText={setArtist} />
           
-          <TouchableOpacity onPress={handleAddWithAI} disabled={loading} className="bg-blue-600 p-4 rounded-xl items-center flex-row justify-center">
-                {loading ? <ActivityIndicator color="white" /> : <Text className="text-white font-bold text-lg">Adicionar com IA</Text>}
+          <View className="flex-row gap-x-2">
+            <View className="flex-1">
+              <TextInput className="bg-gray-100 p-4 rounded-xl mb-3" placeholder="Tom" value={key} onChangeText={setKey} />
+            </View>
+            <View className="flex-1">
+              <TextInput className="bg-gray-100 p-4 rounded-xl mb-3" placeholder="BPM" value={bpm} onChangeText={setBpm} keyboardType="numeric" />
+            </View>
+          </View>
+          
+          <TextInput className="bg-gray-100 p-4 rounded-xl mb-3" placeholder="Link YouTube" value={youtube_url} onChangeText={setYoutubeUrl} />
+          <TextInput className="bg-gray-100 p-4 rounded-xl mb-3" placeholder="Link Spotify" value={spotify_url} onChangeText={setSpotifyUrl} />
+          <TextInput className="bg-gray-100 p-4 rounded-xl mb-6 h-24" placeholder="Letra" value={lyrics} onChangeText={setLyrics} multiline />
+
+          <TouchableOpacity onPress={handleAdd} disabled={addSong.isPending} className="p-4 rounded-xl bg-blue-600 items-center">
+            {addSong.isPending ? <ActivityIndicator color="white" /> : <Text className="text-white font-bold text-lg">Adicionar Música</Text>}
           </TouchableOpacity>
         </View>
       </View>
