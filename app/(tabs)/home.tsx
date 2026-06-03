@@ -29,10 +29,12 @@ export default function HomeScreen() {
     return <View className="flex-1 items-center justify-center"><ActivityIndicator size="large" color="#2563eb" /></View>;
   }
 
-  // Lógica para Líder (Vê todos os próximos eventos)
+  // Lógica para todos os usuários (Vê todos os próximos eventos de culto)
   const allServiceEvents = events?.filter(e => e.type === 'service') || [];
-  
-  // Lógica para Integrante (Vê apenas onde está escalado)
+  const uniqueServiceEvents = Array.from(new Set(allServiceEvents.map(e => e.id)))
+    .map(id => allServiceEvents.find(e => e.id === id)!);
+
+  // Lógica para integrante saber qual é o próximo evento dele
   const myServiceSchedules = userSchedules?.filter(s => s.events.type === 'service') || [];
   const nextSchedule = myServiceSchedules.length > 0 ? myServiceSchedules[0] : null;
   const nextService = nextSchedule?.events;
@@ -60,18 +62,18 @@ export default function HomeScreen() {
         </View>
 
         {/* Stories: Próximos Cultos */}
-        {(isLeader ? allServiceEvents : myServiceSchedules.map(s => s.events)).length > 0 && (
+        {uniqueServiceEvents.length > 0 && (
           <View className="mb-8">
             <Text className="text-gray-400 text-xs font-bold uppercase mb-4 ml-1 tracking-widest">
-                {isLeader ? 'Todos os Próximos Cultos' : 'Minhas Ministrações'}
+                Próximos Cultos
             </Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row" contentContainerStyle={{ paddingLeft: 4 }}>
-              {(isLeader ? allServiceEvents : myServiceSchedules.map(s => s.events)).map((service) => {
+              {uniqueServiceEvents.map((service) => {
                 const eventDate = new Date(service.event_date);
                 const day = eventDate.getDate().toString().padStart(2, '0');
                 const month = (eventDate.getMonth() + 1).toString().padStart(2, '0');
                 const time = eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                const isNext = (isLeader ? allServiceEvents[0]?.id : nextService?.id) === service.id;
+                const isNext = nextService?.id === service.id;
 
                 return (
                   <TouchableOpacity key={service.id} onPress={() => setDetailsEvent(service)} className="items-center mr-6">
