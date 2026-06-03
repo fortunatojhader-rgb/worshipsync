@@ -32,13 +32,18 @@ export function useGroupMetrics() {
         .select(`
           id,
           users (display_name),
-          schedules (id, status)
+          schedules (
+            id, 
+            status,
+            events (type)
+          )
         `)
         .eq('group_id', activeGroup.id);
 
       const memberFrequencies = (memberStats || []).map(member => {
-          const total = member.schedules.length;
-          const confirmed = member.schedules.filter((s: any) => s.status === 'confirmed').length;
+          const serviceSchedules = member.schedules.filter((s: any) => s.events?.type !== 'rehearsal');
+          const total = serviceSchedules.length;
+          const confirmed = serviceSchedules.filter((s: any) => s.status === 'confirmed').length;
           const rate = total > 0 ? (confirmed / total) * 100 : 0;
           return { name: member.users?.display_name, scales: total, rate };
       }).filter(m => m.scales > 0);
@@ -48,14 +53,17 @@ export function useGroupMetrics() {
         .from('songs')
         .select(`
           title,
-          setlist_items (id)
+          setlist_items (
+            id,
+            events (type)
+          )
         `)
         .eq('group_id', activeGroup.id);
 
       const topPlayed = (playedSongs || []).map(song => ({
           song: song.title,
-          count: song.setlist_items.length
-      })).sort((a, b) => b.count - a.count).slice(0, 5);
+          count: song.setlist_items.filter((item: any) => item.events?.type !== 'rehearsal').length
+      })).filter(item => item.count > 0).sort((a, b) => b.count - a.count).slice(0, 5);
 
       return { topSongs: processedSongs, memberFrequencies, topPlayed };
     },
