@@ -148,16 +148,23 @@ html, body {
   color: #60a5fa !important;
 }
 
-/* Calendar Dark Mode */
-.dark .calendar-container {
+/* Calendar Dark Mode Overrides */
+.dark .Calendar .CalendarHeader,
+.dark .Calendar,
+.dark .Calendar .Day,
+.dark .Calendar .DayText {
   background-color: #111827 !important;
   color: #ffffff !important;
 }
 
-.dark .calendar-day {
+.dark .Calendar .DayText {
   color: #ffffff !important;
 }
 
-.dark .calendar-today {
+.dark .Calendar .Day--today {
+  background-color: #2563eb !important;
+}
+
+.dark .Calendar .Day--selected {
   background-color: #2563eb !important;
 }
