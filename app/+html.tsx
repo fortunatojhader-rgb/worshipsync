@@ -7,20 +7,23 @@ import type { ReactNode } from 'react';
 // do not have access to the DOM or browser APIs.
 export default function Root({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" style={{ backgroundColor: '#000' }}>
       <head>
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no" />
 
-        {/*
-          Disable body scrolling on web. This makes ScrollView components work closer to how they do on native.
-          However, body scrolling is often nice to have for mobile web. If you want to enable it, remove this line.
-        */}
         <ScrollViewStyleReset />
 
-        {/* Using raw CSS styles as an escape-hatch to ensure the background color never flickers in dark-mode. */}
-        <style dangerouslySetInnerHTML={{ __html: responsiveBackground }} />
+        <style dangerouslySetInnerHTML={{ __html: `
+            html, body {
+                background-color: #000 !important;
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                width: 100%;
+            }
+        ` }} />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -60,9 +63,8 @@ export default function Root({ children }: { children: ReactNode }) {
             `,
           }}
         />
-        {/* Add any additional <head> elements that you want globally available on web... */}
       </head>
-      <body>{children}</body>
+      <body style={{ backgroundColor: '#000' }}>{children}</body>
     </html>
   );
 }
