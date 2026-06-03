@@ -18,7 +18,10 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
   if (!song) return null;
 
   const openLink = (url: string | null | undefined) => {
-    if (url) Linking.openURL(url);
+    if (url) {
+        const formattedUrl = url.startsWith('http') ? url : `https://${url}`;
+        Linking.openURL(formattedUrl);
+    }
   };
 
   const StatCard = ({ title, value, subValue, icon, color }: any) => (
