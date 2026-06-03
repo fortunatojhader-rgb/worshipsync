@@ -20,7 +20,12 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
   const openLink = (url: string | null | undefined) => {
     if (url) {
         const formattedUrl = url.startsWith('http') ? url : `https://${url}`;
-        Linking.openURL(formattedUrl);
+        // Para web, tenta abrir em nova aba usando window.open
+        if (typeof window !== 'undefined') {
+            window.open(formattedUrl, '_blank');
+        } else {
+            Linking.openURL(formattedUrl);
+        }
     }
   };
 
