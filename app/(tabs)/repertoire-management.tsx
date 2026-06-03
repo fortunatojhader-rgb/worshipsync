@@ -5,6 +5,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { useSongs, useSongSuggestions, useProcessSuggestion } from '../../lib/queries/useSongs';
 
 import { EditSongModal } from '../../components/EditSongModal';
+import { AddSongModal } from '../../components/AddSongModal';
 import { DeleteSongModal } from '../../components/DeleteSongModal';
 import { SongDetailsModal } from '../../components/SongDetailsModal';
 import { ConfirmActionModal } from '../../components/ConfirmActionModal';
@@ -60,6 +61,7 @@ const SuggestionItem = ({ suggestion, onProcess, isPending }: SuggestionItemProp
 
 export default function RepertoireManagementScreen() {
   const [tab, setTab] = useState<'current' | 'suggestions'>('current');
+  const [addModalVisible, setAddModalVisible] = useState(false);
   const [editSong, setEditSong] = useState<any | null>(null);
   const [deleteSongItem, setDeleteSongItem] = useState<any | null>(null);
   const [detailsSong, setDetailsSong] = useState<any | null>(null);
@@ -89,7 +91,15 @@ export default function RepertoireManagementScreen() {
   return (
     <View className="flex-1 bg-gray-50">
       <View className="p-6">
-        <Text className="text-2xl font-bold text-gray-800 mb-6">Gestão de Repertório</Text>
+        <View className="flex-row justify-between items-center mb-6">
+          <Text className="text-2xl font-bold text-gray-800">Gestão de Repertório</Text>
+          <TouchableOpacity 
+            onPress={() => setAddModalVisible(true)}
+            className="bg-blue-600 p-2 rounded-full shadow-sm"
+          >
+            <Ionicons name="add" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
         
         {/* Tabs */}
         <View className="bg-gray-100 rounded-2xl p-1 flex-row mb-6">
@@ -144,6 +154,7 @@ export default function RepertoireManagementScreen() {
       </ScrollView>
 
       <EditSongModal visible={!!editSong} onClose={() => setEditSong(null)} song={editSong} />
+      <AddSongModal visible={addModalVisible} onClose={() => setAddModalVisible(false)} />
       <DeleteSongModal visible={!!deleteSongItem} onClose={() => setDeleteSongItem(null)} song={deleteSongItem} />
       <SongDetailsModal visible={!!detailsSong} onClose={() => setDetailsSong(null)} song={detailsSong} />
       <ConfirmActionModal 
