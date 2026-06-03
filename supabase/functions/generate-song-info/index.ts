@@ -25,22 +25,24 @@ serve(async (req) => {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    // Usando o modelo validado pela API
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-    const prompt = `Find information for the song "${title}" by "${artist}". 
+    // Prompt melhorado para forçar busca por fatos reais
+    const prompt = `You are a music researcher. Search and provide accurate information for the song "${title}" by "${artist}". 
+    DO NOT invent data. If you are not sure about a link, leave it empty.
     Return ONLY a JSON object with these keys: 
-    - default_key (string)
-    - default_bpm (number)
-    - youtube_url (string)
-    - spotify_url (string)
-    - lyrics (string)`;
+    - default_key (string, the most common original key)
+    - default_bpm (number, the standard BPM)
+    - youtube_url (string, official music video or audio link)
+    - spotify_url (string, official Spotify track link)
+    - lyrics (string, official full lyrics)`;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
     
-    // Clean up Markdown formatting from AI response
+    console.log("Raw AI response:", text);
+    
     const jsonString = text.replace(/```json/g, '').replace(/```/g, '');
     const data = JSON.parse(jsonString);
 
