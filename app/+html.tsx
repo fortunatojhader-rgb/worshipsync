@@ -1,10 +1,6 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
 import type { ReactNode } from 'react';
 
-// This file is web-only and used to configure the root HTML for every
-// web page during static rendering.
-// The contents of this function only run in Node.js environments and
-// do not have access to the DOM or browser APIs.
 export default function Root({ children }: { children: ReactNode }) {
   return (
     <html lang="en" style={{ backgroundColor: '#000' }}>
@@ -13,17 +9,25 @@ export default function Root({ children }: { children: ReactNode }) {
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, shrink-to-fit=no" />
 
+        <script dangerouslySetInnerHTML={{ __html: `
+            (function() {
+                try {
+                    const storage = localStorage.getItem('theme-storage');
+                    const theme = storage ? JSON.parse(storage).state.theme : 'system';
+                    const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                    if (isDark) {
+                        document.documentElement.classList.add('dark');
+                        document.documentElement.style.backgroundColor = '#000';
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                        document.documentElement.style.backgroundColor = '#fff';
+                    }
+                } catch (e) {}
+            })();
+        `}} />
+
         <ScrollViewStyleReset />
 
-        <style dangerouslySetInnerHTML={{ __html: `
-            html, body {
-                background-color: #000 !important;
-                margin: 0;
-                padding: 0;
-                height: 100%;
-                width: 100%;
-            }
-        ` }} />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -68,8 +72,3 @@ export default function Root({ children }: { children: ReactNode }) {
     </html>
   );
 }
-
-const responsiveBackground = `
-body {
-  background-color: #000;
-}`;
