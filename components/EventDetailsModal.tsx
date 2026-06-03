@@ -204,7 +204,7 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                 )}
                 
                 {loadingRoster ? <ActivityIndicator /> : (
-                  roster?.length === 0 ? <Text className="text-gray-400 text-center py-8 italic">Ninguém escalado ainda.</Text> :
+                  !roster || roster.length === 0 ? <Text className="text-gray-400 text-center py-8 italic">Ninguém escalado ainda.</Text> :
                   (() => {
                     // Agrupa por membro
                     const members = roster.reduce((acc: any, p: any) => {
