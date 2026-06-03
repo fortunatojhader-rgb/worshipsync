@@ -122,6 +122,42 @@ export function useUserSchedules() {
   });
 }
 
+export function useAddMemberToEvent() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ eventId, groupMemberId, instrument }: { eventId: string, groupMemberId: string, instrument: string }) => {
+      const { error } = await supabase
+        .from('schedules')
+        .insert({
+          event_id: eventId,
+          group_member_id: groupMemberId,
+          instrument,
+          status: 'confirmed'
+        });
+      if (error) throw error;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['roster', variables.eventId] });
+    },
+  });
+}
+
+export function useRemoveMemberFromEvent() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (scheduleId: string) => {
+      const { error } = await supabase
+        .from('schedules')
+        .delete()
+        .eq('id', scheduleId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['roster'] });
+    },
+  });
+}
+
 export function useUpdateScheduleStatus() {
   const queryClient = useQueryClient();
 

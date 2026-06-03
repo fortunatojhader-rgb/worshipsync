@@ -9,7 +9,8 @@ import { MemberProfileModal } from './MemberProfileModal';
 import { useSetlistItems, useAddSetlistItem } from '../lib/queries/useSetlist';
 import { useUpdateSetlistOrder, useUpdateSetlistItemVocalist, useUpdateSetlistItemKey } from '../lib/queries/useSetlistMutations';
 import { useUpdateEvent, useGenerateScale } from '../lib/queries/useEvents';
-import { useEventRoster } from '../lib/queries/useMembers';
+import { useEventRoster, useAddMemberToEvent, useRemoveMemberFromEvent, useMembers } from '../lib/queries/useMembers';
+import { INSTRUMENTS } from '../constants/instruments';
 
 interface EventDetailsModalProps {
   visible: boolean;
@@ -26,6 +27,7 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
   const [selectedMember, setSelectedMember] = useState<any | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingTime, setIsEditingTime] = useState(false);
+  const [addingInstrument, setAddingInstrument] = useState<string | null>(null);
   
   const [themeTitle, setThemeTitle] = useState('');
   const [themeVerse, setThemeVerse] = useState('');
@@ -36,6 +38,7 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
   
   const { data: setlist, isLoading: loadingSetlist } = useSetlistItems(event?.id);
   const { data: roster, isLoading: loadingRoster } = useEventRoster(event?.id);
+  const { data: allMembers } = useMembers();
   
   const addSetlist = useAddSetlistItem();
   const updateOrder = useUpdateSetlistOrder();
@@ -43,6 +46,8 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
   const updateKey = useUpdateSetlistItemKey();
   const updateEvent = useUpdateEvent();
   const generateScale = useGenerateScale();
+  const addMemberToEvent = useAddMemberToEvent();
+  const removeMemberFromEvent = useRemoveMemberFromEvent();
 
   // Membros que podem ser ministros (Vocais)
   const vocals = roster?.filter((p: any) => p.instrument === 'Vocal') || [];
@@ -69,6 +74,23 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
       await updateKey.mutateAsync({ id: itemId, key });
     } catch (error: any) {
       console.error(error);
+    }
+  };
+
+  const handleRemoveMember = async (scheduleId: string) => {
+    try {
+        await removeMemberFromEvent.mutateAsync(scheduleId);
+    } catch (error: any) {
+        Alert.alert('Erro', error.message);
+    }
+  };
+
+  const handleAddMember = async (member: any, instrument: string) => {
+    try {
+        await addMemberToEvent.mutateAsync({ eventId: event.id, groupMemberId: member.id, instrument });
+        setAddingInstrument(null);
+    } catch (error: any) {
+        Alert.alert('Erro', error.message);
     }
   };
 
@@ -120,6 +142,7 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
     await updateOrder.mutateAsync({ id: item.id, newOrder: targetItem.display_order || newIndex + 1 });
     await updateOrder.mutateAsync({ id: targetItem.id, newOrder: item.display_order || currentIndex + 1 });
   };
+
 
   return (
     <Modal visible={visible} animationType="slide" transparent>
@@ -183,8 +206,8 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                 {loadingRoster ? <ActivityIndicator /> : (
                   roster?.length === 0 ? <Text className="text-gray-400 text-center py-8 italic">Ninguém escalado ainda.</Text> :
                   roster?.map((p: any) => (
-                    <TouchableOpacity key={p.id} onPress={() => setSelectedMember(p.group_members)} className="bg-white p-4 rounded-2xl mb-3 shadow-sm border border-gray-100 flex-row items-center justify-between">
-                      <View className="flex-row items-center">
+                    <View key={p.id} className="bg-white p-4 rounded-2xl mb-3 shadow-sm border border-gray-100 flex-row items-center justify-between">
+                      <TouchableOpacity onPress={() => setSelectedMember(p.group_members)} className="flex-row items-center flex-1">
                         <View className="w-10 h-10 bg-blue-50 rounded-full items-center justify-center mr-3 overflow-hidden">
                           {p.group_members?.users?.photo_url ? (
                               <Image source={{ uri: p.group_members.users.photo_url }} className="w-full h-full" />
@@ -196,21 +219,57 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                           <Text className="font-bold text-gray-800">{p.group_members?.users?.display_name}</Text>
                           <Text className="text-gray-400 text-xs uppercase font-bold tracking-widest">{p.instrument}</Text>
                         </View>
-                      </View>
-                      <View className="items-end">
-                        <View className="flex-row items-center mb-1">
-                          <View className={`w-2 h-2 rounded-full mr-2 ${
-                            p.status === 'confirmed' ? 'bg-green-500' : 
-                            p.status === 'declined' ? 'bg-red-500' : 'bg-yellow-500'
-                          }`} />
-                          <Text className={`text-[10px] font-bold uppercase ${
-                            p.status === 'confirmed' ? 'text-green-600' : 
-                            p.status === 'declined' ? 'text-red-600' : 'text-yellow-600'
-                          }`}>{p.status === 'confirmed' ? 'Confirmado' : p.status === 'declined' ? 'Recusado' : 'Pendente'}</Text>
-                        </View>
-                      </View>
-                    </TouchableOpacity>
+                      </TouchableOpacity>
+                      {isLeader && isEditing && (
+                        <TouchableOpacity onPress={() => handleRemoveMember(p.id)} className="p-2">
+                          <Ionicons name="trash" size={18} color="#ef4444" />
+                        </TouchableOpacity>
+                      )}
+                      {!isEditing && (
+                          <View className="items-end">
+                            <View className="flex-row items-center mb-1">
+                              <View className={`w-2 h-2 rounded-full mr-2 ${
+                                p.status === 'confirmed' ? 'bg-green-500' : 
+                                p.status === 'declined' ? 'bg-red-500' : 'bg-yellow-500'
+                              }`} />
+                              <Text className={`text-[10px] font-bold uppercase ${
+                                p.status === 'confirmed' ? 'text-green-600' : 
+                                p.status === 'declined' ? 'text-red-600' : 'text-yellow-600'
+                              }`}>{p.status === 'confirmed' ? 'Confirmado' : p.status === 'declined' ? 'Recusado' : 'Pendente'}</Text>
+                            </View>
+                          </View>
+                      )}
+                    </View>
                   ))
+                )}
+                
+                {isLeader && isEditing && (
+                    <View className="mt-4">
+                        <Text className="font-bold text-gray-700 mb-2">Adicionar Integrante:</Text>
+                        <View className="flex-row flex-wrap gap-2 mb-4">
+                            {INSTRUMENTS.map((inst) => (
+                                <TouchableOpacity 
+                                    key={inst} 
+                                    onPress={() => setAddingInstrument(inst === addingInstrument ? null : inst)}
+                                    className={`px-3 py-2 rounded-xl ${addingInstrument === inst ? 'bg-blue-600' : 'bg-gray-200'}`}
+                                >
+                                    <Text className={addingInstrument === inst ? 'text-white font-bold' : 'text-gray-700'}>{inst}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                        {addingInstrument && (
+                            <View className="bg-white p-4 rounded-2xl border border-gray-100">
+                                {allMembers?.filter(m => m.member_instruments.some((mi: any) => mi.instrument === addingInstrument)).map(m => (
+                                    <TouchableOpacity key={m.id} onPress={() => handleAddMember(m, addingInstrument)} className="flex-row items-center p-2 border-b border-gray-50">
+                                        <View className="w-8 h-8 bg-blue-50 rounded-full items-center justify-center mr-3 overflow-hidden">
+                                            {m.users?.photo_url ? <Image source={{ uri: m.users.photo_url }} className="w-full h-full" /> : <Ionicons name="person" size={16} color="#2563eb" />}
+                                        </View>
+                                        <Text className="font-bold">{m.users?.display_name}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        )}
+                    </View>
                 )}
               </>
             )}
