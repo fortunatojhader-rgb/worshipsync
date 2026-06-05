@@ -57,6 +57,8 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
         snapPoints={snapPoints}
         backdropComponent={renderBackdrop}
         enablePanDownToClose
+        enableContentPanningGesture={false}
+        enableHandlePanningGesture={true}
         onDismiss={onClose}
         handleStyle={handleStyle}
         handleIndicatorStyle={handleIndicatorStyle}
