@@ -3,6 +3,7 @@ import { View, Text, Modal, TouchableOpacity, ScrollView, Linking, ActivityIndic
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { useSongStats } from '../lib/queries/useSongStats';
 import { CloseButton } from './ui/CloseButton';
+import { YouTubePlayer } from './song/YouTubePlayer';
 
 interface SongDetailsModalProps {
   visible: boolean;
@@ -12,9 +13,19 @@ interface SongDetailsModalProps {
 
 type TabType = 'lyrics' | 'history' | 'stats';
 
+// Helper to extract YouTube ID
+const getYoutubeId = (url: string | null | undefined) => {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+
 export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>('lyrics');
+  const [showPlayer, setShowPlayer] = useState(false);
   const { data: stats, isLoading } = useSongStats(song?.id);
+  const videoId = getYoutubeId(song?.youtube_url);
 
   if (!song) return null;
 
