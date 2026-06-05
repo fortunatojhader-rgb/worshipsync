@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo, forwardRef } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet, Text, Platform } from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetView,
   BottomSheetBackdrop,
-  BottomSheetHandle,
+  BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
 import { useThemeStore } from '../../stores/themeStore';
 import { useColorScheme } from 'react-native';
@@ -14,10 +14,11 @@ interface AppBottomSheetProps {
   snapPoints?: string[];
   onClose?: () => void;
   title?: string;
+  scrollable?: boolean;
 }
 
 export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
-  ({ children, snapPoints: customSnapPoints, onClose, title }, ref) => {
+  ({ children, snapPoints: customSnapPoints, onClose, title, scrollable = true }, ref) => {
     const { theme } = useThemeStore();
     const systemColorScheme = useColorScheme();
     const isDark = (theme === 'system' ? systemColorScheme : theme) === 'dark';
@@ -37,7 +38,7 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
     );
 
     const handleStyle = useMemo(() => ({
-      backgroundColor: isDark ? '#1f2937' : '#ffffff',
+      backgroundColor: isDark ? '#111827' : '#f9fafb',
       borderTopLeftRadius: 32,
       borderTopRightRadius: 32,
     }), [isDark]);
@@ -46,6 +47,8 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
       backgroundColor: isDark ? '#4b5563' : '#d1d5db',
       width: 40,
     }), [isDark]);
+
+    const Container = scrollable ? BottomSheetScrollView : BottomSheetView;
 
     return (
       <BottomSheetModal
@@ -57,18 +60,22 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
         onDismiss={onClose}
         handleStyle={handleStyle}
         handleIndicatorStyle={handleIndicatorStyle}
+        keyboardBlurBehavior="restore"
+        android_keyboardInputMode="adjustResize"
         backgroundStyle={{
-          backgroundColor: isDark ? 'rgba(31, 41, 55, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+          backgroundColor: isDark ? '#111827' : '#f9fafb',
         }}
       >
-        <BottomSheetView style={styles.contentContainer}>
+        <Container style={styles.contentContainer} contentContainerStyle={scrollable ? styles.scrollContent : undefined}>
           {title && (
             <View style={styles.header}>
-              <Text style={[styles.title, { color: isDark ? '#ffffff' : '#1f2937' }]}>{title}</Text>
+              <Text style={[styles.title, { color: isDark ? '#ffffff' : '#111827' }]}>{title}</Text>
             </View>
           )}
           {children}
-        </BottomSheetView>
+          {/* Espaçamento extra para o final do scroll */}
+          <View style={{ height: Platform.OS === 'web' ? 40 : 80 }} />
+        </Container>
       </BottomSheetModal>
     );
   }
@@ -77,10 +84,14 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
 const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
+  },
+  scrollContent: {
     padding: 16,
+    paddingTop: 0,
   },
   header: {
-    marginBottom: 16,
+    marginBottom: 20,
+    marginTop: 10,
     alignItems: 'center',
   },
   title: {

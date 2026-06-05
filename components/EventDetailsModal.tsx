@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Alert, ActivityIndicator, TextInput, Image, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, ActivityIndicator, TextInput, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useAuthStore } from '../stores/authStore';
 import { AddToSetlistModal } from './AddToSetlistModal';
 import { DeleteSetlistModal } from './DeleteSetlistModal';
@@ -128,10 +128,6 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
         event_date: newDate.toISOString()
       });
       
-      event.theme_title = themeTitle;
-      event.theme_verse = themeVerse;
-      event.event_date = newDate.toISOString();
-      
       Alert.alert('Sucesso', 'Informações atualizadas!');
       setIsEditingTime(false);
       onSuccess();
@@ -160,9 +156,9 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
       <AppBottomSheet 
         ref={bottomSheetRef} 
         onClose={onClose}
-        snapPoints={['90%']}
+        snapPoints={['95%']}
+        scrollable={true}
       >
-        <View className="flex-1">
           <View className="flex-row justify-between items-center mb-6">
             <View className="flex-1">
                 <Text className="text-2xl font-bold text-gray-800 dark:text-white">{event?.title}</Text>
@@ -203,7 +199,6 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
             <TouchableOpacity onPress={() => setTab('theme')} className={`flex-1 py-2 rounded-2xl items-center ${tab === 'theme' ? 'bg-white/60 shadow-sm dark:bg-gray-700/60' : ''}`}><Text className={`font-bold text-xs ${tab === 'theme' ? 'text-blue-600' : 'text-gray-500'}`}>Tema</Text></TouchableOpacity>
           </View>
 
-          <BottomSheetScrollView className="flex-1">
             {tab === 'roster' && (
               <>
                 {isLeader && isEditing && (
@@ -346,9 +341,6 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                 )}
               </View>
             )}
-            <View className="h-10" />
-          </BottomSheetScrollView>
-        </View>
       </AppBottomSheet>
 
       <AddToSetlistModal visible={addSongVisible} onClose={() => setAddSongVisible(false)} onAdd={handleAddSong} />
