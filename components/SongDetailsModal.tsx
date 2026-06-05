@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Linking, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, Linking, ActivityIndicator, ScrollView } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
-import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useSongStats } from '../lib/queries/useSongStats';
 import { CloseButton } from './ui/CloseButton';
 import { YouTubePlayer } from './song/YouTubePlayer';
@@ -108,7 +108,7 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
           </View>
         </View>
 
-        <BottomSheetScrollView 
+        <ScrollView 
           style={{ flex: 1 }}
           contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingBottom: 150 }}
           showsVerticalScrollIndicator={true}
@@ -267,7 +267,7 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
               )}
             </>
           )}
-        </BottomSheetScrollView>
+        </ScrollView>
       </View>
     </AppBottomSheet>
   );

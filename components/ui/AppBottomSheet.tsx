@@ -21,7 +21,7 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
     const systemColorScheme = useColorScheme();
     const isDark = (theme === 'system' ? systemColorScheme : theme) === 'dark';
 
-    // Fixed height: set snap points to a single value for consistency (e.g., 90%)
+    // Force a specific height for the modal regardless of content
     const snapPoints = useMemo(() => customSnapPoints || ['90%'], [customSnapPoints]);
 
     const renderBackdrop = useCallback(
@@ -43,7 +43,6 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
         snapPoints={snapPoints}
         backdropComponent={renderBackdrop}
         enablePanDownToClose={true}
-        // Strict restriction: drag only works from the handle
         enableContentPanningGesture={false} 
         enableHandlePanningGesture={true}
         onDismiss={onClose}
@@ -70,6 +69,7 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
 const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
+    height: '100%',
   },
   header: {
     marginBottom: 10,
