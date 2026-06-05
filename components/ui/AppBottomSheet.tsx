@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, forwardRef } from 'react';
-import { View, StyleSheet, Text, Platform } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetView,
@@ -21,7 +21,8 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
     const systemColorScheme = useColorScheme();
     const isDark = (theme === 'system' ? systemColorScheme : theme) === 'dark';
 
-    const snapPoints = useMemo(() => customSnapPoints || ['50%', '95%'], [customSnapPoints]);
+    // Fixed height: set snap points to a single value for consistency (e.g., 90%)
+    const snapPoints = useMemo(() => customSnapPoints || ['90%'], [customSnapPoints]);
 
     const renderBackdrop = useCallback(
       (props: any) => (
@@ -38,11 +39,12 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
     return (
       <BottomSheetModal
         ref={ref}
-        index={1}
+        index={0}
         snapPoints={snapPoints}
         backdropComponent={renderBackdrop}
         enablePanDownToClose={true}
-        enableContentPanningGesture={true}
+        // Strict restriction: drag only works from the handle
+        enableContentPanningGesture={false} 
         enableHandlePanningGesture={true}
         onDismiss={onClose}
         keyboardBlurBehavior="restore"
