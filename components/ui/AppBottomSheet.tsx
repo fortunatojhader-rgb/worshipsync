@@ -35,34 +35,22 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
       []
     );
 
-    const handleStyle = useMemo(() => ({
-      backgroundColor: isDark ? '#111827' : '#f9fafb',
-      borderTopLeftRadius: 32,
-      borderTopRightRadius: 32,
-    }), [isDark]);
-
-    const handleIndicatorStyle = useMemo(() => ({
-      backgroundColor: isDark ? '#4b5563' : '#d1d5db',
-      width: 40,
-    }), [isDark]);
-
     return (
       <BottomSheetModal
         ref={ref}
-        index={0}
+        index={1}
         snapPoints={snapPoints}
         backdropComponent={renderBackdrop}
         enablePanDownToClose={true}
         enableContentPanningGesture={false}
         enableHandlePanningGesture={true}
         onDismiss={onClose}
-        handleStyle={handleStyle}
-        handleIndicatorStyle={handleIndicatorStyle}
         keyboardBlurBehavior="restore"
         android_keyboardInputMode="adjustResize"
         backgroundStyle={{
           backgroundColor: isDark ? '#111827' : '#f9fafb',
         }}
+        handleIndicatorStyle={{ backgroundColor: isDark ? '#4b5563' : '#d1d5db', width: 40 }}
       >
         <BottomSheetView style={styles.contentContainer}>
           {title && (
@@ -80,6 +68,7 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
 const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
+    paddingBottom: 20,
   },
   header: {
     marginBottom: 10,
