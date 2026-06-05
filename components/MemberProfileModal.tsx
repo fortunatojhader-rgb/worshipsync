@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Modal, TouchableOpacity, ScrollView, Image, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { CloseButton } from './ui/CloseButton';
 
 interface MemberProfileModalProps {
   visible: boolean;
@@ -28,8 +29,6 @@ export function MemberProfileModal({ visible, onClose, member }: MemberProfileMo
         <View className="glass rounded-t-3xl p-6 h-[80%]">
           <View className="flex-row justify-between items-center mb-6">
             <Text className="text-xl font-bold text-gray-800">Perfil do Integrante</Text>
-import { CloseButton } from './ui/CloseButton';
-...
             <CloseButton onPress={onClose} />
           </View>
 

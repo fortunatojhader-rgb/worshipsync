@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, ActivityIndicator, Alert, ScrollView, useColorScheme } from 'react-native';
 import { Calendar, DateData } from 'react-native-calendars';
-import { Ionicons } from '@expo/vector-icons';
 import { useAddAvailability } from '../lib/queries/useAvailability';
 import { getCalendarTheme } from '../constants/calendarTheme';
 import { useThemeStore } from '../stores/themeStore';
+import { CloseButton } from './ui/CloseButton';
 
 interface AddImpedimentModalProps {
   visible: boolean;
@@ -128,9 +128,7 @@ export function AddImpedimentModal({ visible, onClose }: AddImpedimentModalProps
         <View className="glass rounded-t-3xl p-6 h-[90%] dark:bg-gray-900">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-xl font-bold dark:text-white">Novo Impedimento</Text>
-            <TouchableOpacity onPress={onClose} className="p-2 bg-gray-100 rounded-full dark:bg-gray-800">
-              <Ionicons name="close" size={20} color="#4b5563" />
-            </TouchableOpacity>
+            <CloseButton onPress={onClose} />
           </View>
           
           <ScrollView className="flex-1">

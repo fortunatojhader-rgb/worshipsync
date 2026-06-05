@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, Modal, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, Modal, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { useDeleteEvent } from '../lib/queries/useEvents';
+import { CloseButton } from './ui/CloseButton';
 
 interface DeleteEventModalProps {
   visible: boolean;
@@ -30,7 +31,11 @@ export function DeleteEventModal({ visible, onClose, event, onSuccess }: DeleteE
     <Modal visible={visible} animationType="fade" transparent>
       <View className="flex-1 bg-black/50 items-center justify-center p-4">
         <View className="glass p-6 rounded-3xl w-full max-w-sm">
-          <Text className="text-xl font-bold mb-2">Excluir Evento</Text>
+          <View className="flex-row justify-between items-center mb-2">
+            <Text className="text-xl font-bold">Excluir Evento</Text>
+            <CloseButton onPress={onClose} />
+          </View>
+          
           <Text className="text-gray-600 mb-6">
             Tem certeza que deseja excluir "{event?.title}"? Esta ação não pode ser desfeita.
           </Text>

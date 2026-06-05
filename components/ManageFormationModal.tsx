@@ -3,6 +3,7 @@ import { View, Text, Modal, TouchableOpacity, ScrollView, ActivityIndicator, Ale
 import { Ionicons } from '@expo/vector-icons';
 import { INSTRUMENTS } from '../constants/instruments';
 import { useUpdateDefaultFormation } from '../lib/queries/useGroups';
+import { CloseButton } from './ui/CloseButton';
 
 interface ManageFormationModalProps {
   visible: boolean;
@@ -48,8 +49,6 @@ export function ManageFormationModal({ visible, onClose, currentFormation }: Man
         <View className="glass rounded-t-3xl p-6 h-[80%]">
           <View className="flex-row justify-between items-center mb-6">
             <Text className="text-xl font-bold">Formação Padrão</Text>
-import { CloseButton } from './ui/CloseButton';
-...
             <CloseButton onPress={onClose} />
           </View>
 

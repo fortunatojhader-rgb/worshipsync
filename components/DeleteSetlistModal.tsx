@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Modal, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useDeleteSetlistItem } from '../lib/queries/useSetlistMutations';
+import { CloseButton } from './ui/CloseButton';
 
 interface DeleteSetlistModalProps {
   visible: boolean;
@@ -25,7 +26,11 @@ export function DeleteSetlistModal({ visible, onClose, itemId }: DeleteSetlistMo
     <Modal visible={visible} animationType="fade" transparent>
       <View className="flex-1 bg-black/50 items-center justify-center p-4">
         <View className="glass p-6 rounded-3xl w-full max-w-sm">
-          <Text className="text-xl font-bold mb-2">Excluir Música do Setlist</Text>
+          <View className="flex-row justify-between items-center mb-2">
+            <Text className="text-xl font-bold">Excluir do Setlist</Text>
+            <CloseButton onPress={onClose} />
+          </View>
+          
           <Text className="text-gray-600 mb-6">Tem certeza que deseja remover esta música do setlist? Esta ação não pode ser desfeita.</Text>
           
           <View className="flex-row space-x-2">

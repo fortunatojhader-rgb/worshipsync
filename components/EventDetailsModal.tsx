@@ -11,6 +11,7 @@ import { useUpdateSetlistOrder, useUpdateSetlistItemVocalist, useUpdateSetlistIt
 import { useUpdateEvent, useGenerateScale } from '../lib/queries/useEvents';
 import { useEventRoster, useAddMemberToEvent, useRemoveMemberFromEvent, useMembers } from '../lib/queries/useMembers';
 import { INSTRUMENTS } from '../constants/instruments';
+import { CloseButton } from './ui/CloseButton';
 
 interface EventDetailsModalProps {
   visible: boolean;
@@ -147,7 +148,7 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 bg-black/50 justify-end">
-        <View className="glass rounded-[32px] p-6 h-[90%]">
+        <View className="glass rounded-[32px] p-6 h-[90%] shadow-2xl shadow-black/20">
           <View className="flex-row justify-between items-center mb-6">
             <View className="flex-1">
                 <Text className="text-2xl font-bold text-gray-800">{event?.title}</Text>
@@ -170,24 +171,22 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                   </Text>
                 </TouchableOpacity>
               )}
-              <TouchableOpacity onPress={onClose} className="p-2 bg-gray-100 rounded-full">
-                <Ionicons name="close" size={20} color="#374151" />
-              </TouchableOpacity>
+              <CloseButton onPress={onClose} />
             </View>
           </View>
 
           {isEditingTime && (
-              <View className="bg-gray-100 p-4 rounded-2xl mb-4">
-                  <Text className="font-bold mb-2 text-sm text-gray-700">Alterar Horário:</Text>
-                  <TextInput className="bg-white p-3 rounded-xl border border-gray-200" value={eventTime} onChangeText={setEventTime} placeholder="HH:MM" />
-                  <TouchableOpacity onPress={handleSaveEvent} className="bg-blue-600 mt-3 p-3 rounded-xl items-center"><Text className="text-white font-bold">Salvar Horário</Text></TouchableOpacity>
+              <View className="bg-gray-100/50 backdrop-blur-md p-4 rounded-3xl mb-4 border border-white/20">
+                  <Text className="font-bold mb-2 text-sm text-gray-700 dark:text-gray-200">Alterar Horário:</Text>
+                  <TextInput className="bg-white/50 p-3 rounded-2xl border border-white/30" value={eventTime} onChangeText={setEventTime} placeholder="HH:MM" />
+                  <TouchableOpacity onPress={handleSaveEvent} className="bg-blue-600 mt-3 p-3 rounded-2xl items-center shadow-lg"><Text className="text-white font-bold">Salvar Horário</Text></TouchableOpacity>
               </View>
           )}
 
-          <View className="bg-gray-100 rounded-2xl p-1 flex-row mb-6">
-            <TouchableOpacity onPress={() => setTab('roster')} className={`flex-1 py-2 rounded-xl items-center ${tab === 'roster' ? 'bg-white shadow-sm' : ''}`}><Text className={`font-bold text-xs ${tab === 'roster' ? 'text-blue-600' : 'text-gray-500'}`}>Equipe</Text></TouchableOpacity>
-            <TouchableOpacity onPress={() => setTab('setlist')} className={`flex-1 py-2 rounded-xl items-center ${tab === 'setlist' ? 'bg-white shadow-sm' : ''}`}><Text className={`font-bold text-xs ${tab === 'setlist' ? 'text-blue-600' : 'text-gray-500'}`}>Setlist</Text></TouchableOpacity>
-            <TouchableOpacity onPress={() => setTab('theme')} className={`flex-1 py-2 rounded-xl items-center ${tab === 'theme' ? 'bg-white shadow-sm' : ''}`}><Text className={`font-bold text-xs ${tab === 'theme' ? 'text-blue-600' : 'text-gray-500'}`}>Tema</Text></TouchableOpacity>
+          <View className="bg-gray-100/50 backdrop-blur-md rounded-3xl p-1 flex-row mb-6 border border-white/20">
+            <TouchableOpacity onPress={() => setTab('roster')} className={`flex-1 py-2 rounded-2xl items-center ${tab === 'roster' ? 'bg-white/60 shadow-sm' : ''}`}><Text className={`font-bold text-xs ${tab === 'roster' ? 'text-blue-600' : 'text-gray-500'}`}>Equipe</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => setTab('setlist')} className={`flex-1 py-2 rounded-2xl items-center ${tab === 'setlist' ? 'bg-white/60 shadow-sm' : ''}`}><Text className={`font-bold text-xs ${tab === 'setlist' ? 'text-blue-600' : 'text-gray-500'}`}>Setlist</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => setTab('theme')} className={`flex-1 py-2 rounded-2xl items-center ${tab === 'theme' ? 'bg-white/60 shadow-sm' : ''}`}><Text className={`font-bold text-xs ${tab === 'theme' ? 'text-blue-600' : 'text-gray-500'}`}>Tema</Text></TouchableOpacity>
           </View>
 
           <ScrollView className="flex-1">

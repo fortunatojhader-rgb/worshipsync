@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, ScrollView, Linking, ActivityIndicator } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { useSongStats } from '../lib/queries/useSongStats';
+import { CloseButton } from './ui/CloseButton';
 
 interface SongDetailsModalProps {
   visible: boolean;
@@ -70,8 +71,6 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
                 <Text className="text-2xl font-bold text-gray-800" numberOfLines={1}>{song.title}</Text>
                 <Text className="text-gray-500 font-medium">{song.artist || 'Desconhecido'}</Text>
               </View>
-import { CloseButton } from './ui/CloseButton';
-...
               <CloseButton onPress={onClose} />
             </View>
           </View>

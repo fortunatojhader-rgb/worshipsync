@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, TextInput, TouchableOpacity, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { useUpdateSong } from '../lib/queries/useSongs';
+import { CloseButton } from './ui/CloseButton';
 
 interface EditSongModalProps {
   visible: boolean;
@@ -61,7 +62,11 @@ export function EditSongModal({ visible, onClose, song }: EditSongModalProps) {
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 bg-black/50 justify-end">
         <View className="glass rounded-t-3xl p-6 h-[90%]">
-          <Text className="text-xl font-bold mb-4">Editar Música</Text>
+          <View className="flex-row justify-between items-center mb-4">
+            <Text className="text-xl font-bold">Editar Música</Text>
+            <CloseButton onPress={onClose} />
+          </View>
+          
           <ScrollView>
             <TextInput className="bg-gray-100 p-4 rounded-xl mb-3" placeholder="Título" value={title} onChangeText={setTitle} />
             <TextInput className="bg-gray-100 p-4 rounded-xl mb-3" placeholder="Artista" value={artist} onChangeText={setArtist} />

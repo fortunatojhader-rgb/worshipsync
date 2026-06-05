@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Modal, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { useAddSong } from '../lib/queries/useSongs';
+import { CloseButton } from './ui/CloseButton';
 
 interface AddSongModalProps {
   visible: boolean;
@@ -49,7 +49,7 @@ export function AddSongModal({ visible, onClose }: AddSongModalProps) {
         <View className="glass p-6 rounded-3xl w-full max-w-sm">
           <View className="flex-row justify-between items-center mb-6">
             <Text className="text-xl font-bold">Adicionar Música</Text>
-            <TouchableOpacity onPress={onClose}><Ionicons name="close" size={24} /></TouchableOpacity>
+            <CloseButton onPress={onClose} />
           </View>
           
           <TextInput className="bg-gray-100 p-4 rounded-xl mb-3" placeholder="Título" value={title} onChangeText={setTitle} />

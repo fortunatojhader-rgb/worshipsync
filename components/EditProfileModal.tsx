@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, TextInput, TouchableOpacity, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { useUpdateProfile } from '../lib/queries/useProfile';
+import { CloseButton } from './ui/CloseButton';
 
 interface EditProfileModalProps {
   visible: boolean;
@@ -40,7 +41,10 @@ export function EditProfileModal({ visible, onClose, profile }: EditProfileModal
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 bg-black/50 justify-end">
         <View className="glass rounded-t-3xl p-6 h-[70%]">
-          <Text className="text-xl font-bold mb-4">Editar Perfil</Text>
+          <View className="flex-row justify-between items-center mb-4">
+            <Text className="text-xl font-bold">Editar Perfil</Text>
+            <CloseButton onPress={onClose} />
+          </View>
           
           <ScrollView className="flex-1">
             <Text className="text-gray-700 font-semibold mb-2 ml-1">Nome de Exibição</Text>

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, Modal, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/authStore';
+import { CloseButton } from './ui/CloseButton';
 
 interface CreateGroupModalProps {
   visible: boolean;
@@ -58,7 +58,11 @@ export function CreateGroupModal({ visible, onClose, onSuccess }: CreateGroupMod
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 bg-black/50 items-center justify-center p-4">
         <View className="glass p-6 rounded-3xl w-full max-w-sm">
-          <Text className="text-xl font-bold mb-4">Novo Grupo</Text>
+          <View className="flex-row justify-between items-center mb-4">
+            <Text className="text-xl font-bold">Novo Grupo</Text>
+            <CloseButton onPress={onClose} />
+          </View>
+          
           <TextInput
             className="bg-gray-100 p-4 rounded-xl mb-4"
             placeholder="Nome do grupo (ex: Louvor Central)"

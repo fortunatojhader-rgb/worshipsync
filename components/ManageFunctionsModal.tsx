@@ -3,6 +3,7 @@ import { View, Text, Modal, TouchableOpacity, ActivityIndicator, Alert, ScrollVi
 import { Ionicons } from '@expo/vector-icons';
 import { useAddUserFunction, useDeleteUserFunction } from '../lib/queries/useProfile';
 import { INSTRUMENTS, INSTRUMENT_LEVELS } from '../constants/instruments';
+import { CloseButton } from './ui/CloseButton';
 
 interface ManageFunctionsModalProps {
   visible: boolean;
@@ -48,8 +49,6 @@ export function ManageFunctionsModal({ visible, onClose, userFunctions }: Manage
         <View className="glass rounded-t-3xl p-6 h-[80%]">
           <View className="flex-row justify-between items-center mb-6">
             <Text className="text-xl font-bold">Minhas Funções</Text>
-import { CloseButton } from './ui/CloseButton';
-...
             <CloseButton onPress={onClose} />
           </View>
           

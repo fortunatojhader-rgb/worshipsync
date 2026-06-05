@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, ScrollView, TextInput, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSongs } from '../lib/queries/useSongs';
+import { CloseButton } from './ui/CloseButton';
 
 interface AddToSetlistModalProps {
   visible: boolean;
@@ -22,7 +23,7 @@ export function AddToSetlistModal({ visible, onClose, onAdd }: AddToSetlistModal
         <View className="glass rounded-t-3xl p-6 h-[80%]">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-xl font-bold">Adicionar ao Setlist</Text>
-            <TouchableOpacity onPress={onClose}><Ionicons name="close" size={24} /></TouchableOpacity>
+            <CloseButton onPress={onClose} />
           </View>
 
           <TextInput 
