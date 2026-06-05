@@ -12,6 +12,7 @@ import { useUpdateEvent, useGenerateScale } from '../lib/queries/useEvents';
 import { useEventRoster, useAddMemberToEvent, useRemoveMemberFromEvent, useMembers } from '../lib/queries/useMembers';
 import { INSTRUMENTS } from '../constants/instruments';
 import { CloseButton } from './ui/CloseButton';
+import { SongCard } from './song/SongCard';
 
 interface EventDetailsModalProps {
   visible: boolean;
@@ -293,8 +294,6 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                         <Text className="text-white font-bold">Adicionar Música</Text>
                     </TouchableOpacity>
                 )}
-import { SongCard } from './song/SongCard';
-...
                 {loadingSetlist ? <ActivityIndicator /> : (
                   setlist?.length === 0 ? <Text className="text-gray-600 italic text-center py-4">Nenhuma música no setlist.</Text> :
                   setlist?.map((item: any) => (
