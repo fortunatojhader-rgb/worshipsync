@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, ScrollView, Linking, ActivityIndicator } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, TouchableOpacity, Linking, ActivityIndicator } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useSongStats } from '../lib/queries/useSongStats';
 import { CloseButton } from './ui/CloseButton';
 import { YouTubePlayer } from './song/YouTubePlayer';
+import { AppBottomSheet } from './ui/AppBottomSheet';
 
 interface SongDetailsModalProps {
   visible: boolean;
@@ -22,17 +24,24 @@ const getYoutubeId = (url: string | null | undefined) => {
 };
 
 export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalProps) {
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [activeTab, setActiveTab] = useState<TabType>('lyrics');
-  const [showPlayer, setShowPlayer] = useState(false);
   const { data: stats, isLoading } = useSongStats(song?.id);
   const videoId = getYoutubeId(song?.youtube_url);
+
+  useEffect(() => {
+    if (visible) {
+      bottomSheetRef.current?.present();
+    } else {
+      bottomSheetRef.current?.dismiss();
+    }
+  }, [visible]);
 
   if (!song) return null;
 
   const openLink = (url: string | null | undefined) => {
     if (url) {
         const formattedUrl = url.startsWith('http') ? url : `https://${url}`;
-        // Para web, tenta abrir em nova aba usando window.open
         if (typeof window !== 'undefined') {
             window.open(formattedUrl, '_blank');
         } else {
@@ -42,15 +51,15 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
   };
 
   const StatCard = ({ title, value, subValue, icon, color }: any) => (
-    <View className="bg-gray-50 p-4 rounded-2xl flex-1 m-1 border border-gray-100">
+    <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-2xl flex-1 m-1 border border-gray-100 dark:border-gray-700">
       <View className="flex-row justify-between items-start mb-2">
-        <View className={`p-2 rounded-lg bg-${color}-100`}>
+        <View className={`p-2 rounded-lg bg-${color}-100 dark:bg-${color}-900/30`}>
           <Ionicons name={icon} size={16} color={color === 'blue' ? '#2563eb' : color === 'green' ? '#16a34a' : '#ea580c'} />
         </View>
       </View>
-      <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">{title}</Text>
-      <Text className="text-gray-800 text-lg font-bold">{value}</Text>
-      {subValue && <Text className="text-gray-400 text-[9px] mt-0.5">{subValue}</Text>}
+      <Text className="text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest">{title}</Text>
+      <Text className="text-gray-800 dark:text-white text-lg font-bold">{value}</Text>
+      {subValue && <Text className="text-gray-400 dark:text-gray-500 text-[9px] mt-0.5">{subValue}</Text>}
     </View>
   );
 
@@ -63,24 +72,27 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
         className="items-center"
         disabled={!isActive}
       >
-        <View className={`w-12 h-12 rounded-2xl items-center justify-center mb-1 ${isActive ? `bg-${color.replace('#','')}-100` : 'bg-gray-100'}`}>
+        <View className={`w-12 h-12 rounded-2xl items-center justify-center mb-1 ${isActive ? `bg-${color.replace('#','')}-100 dark:bg-${color.replace('#','')}-900/30` : 'bg-gray-100 dark:bg-gray-800'}`}>
           <IconComponent name={icon} size={24} color={isActive ? color : '#9ca3af'} />
         </View>
-        <Text className={`text-[10px] font-bold ${isActive ? 'text-gray-600' : 'text-gray-300'}`}>{label}</Text>
+        <Text className={`text-[10px] font-bold ${isActive ? 'text-gray-600 dark:text-gray-400' : 'text-gray-300 dark:text-gray-600'}`}>{label}</Text>
       </TouchableOpacity>
     );
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent>
-      <View className="flex-1 bg-black/50 justify-end">
-        <View className="glass rounded-t-3xl h-[90%]">
+    <AppBottomSheet 
+      ref={bottomSheetRef} 
+      onClose={onClose}
+      snapPoints={['90%']}
+    >
+        <View className="flex-1">
           {/* Header */}
           <View className="p-6 pb-2">
             <View className="flex-row justify-between items-center mb-2">
               <View className="flex-1">
-                <Text className="text-2xl font-bold text-gray-800" numberOfLines={1}>{song.title}</Text>
-                <Text className="text-gray-500 font-medium">{song.artist || 'Desconhecido'}</Text>
+                <Text className="text-2xl font-bold text-gray-800 dark:text-white" numberOfLines={1}>{song.title}</Text>
+                <Text className="text-gray-500 dark:text-gray-400 font-medium">{song.artist || 'Desconhecido'}</Text>
               </View>
               <CloseButton onPress={onClose} />
             </View>
@@ -99,7 +111,7 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
             </TouchableOpacity>
           </View>
 
-          <ScrollView className="flex-1 px-6">
+          <BottomSheetScrollView className="flex-1 px-6">
             {isLoading ? (
               <View className="flex-1 items-center justify-center py-20">
                 <ActivityIndicator size="large" color="#2563eb" />
@@ -108,7 +120,7 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
               <>
                 {activeTab === 'lyrics' && (
                   <View className="pb-8">
-                    <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">Materiais</Text>
+                    <Text className="text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-3">Materiais</Text>
                     <View className="flex-row gap-x-6 mb-8">
                       <MaterialButton icon="spotify" label="Spotify" url={song.spotify_url} color="#1db954" library="FontAwesome" />
                       <MaterialButton icon="document-text" label="Cifra" url={song.cifraclub_url} color="#2563eb" />
@@ -116,21 +128,21 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
 
                     {videoId && (
                       <View className="mb-8">
-                        <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">Vídeo de Ensaio</Text>
+                        <Text className="text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-3">Vídeo de Ensaio</Text>
                         <YouTubePlayer videoId={videoId} />
                       </View>
                     )}
 
-                    <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">Letra</Text>
-                    <View className="bg-gray-50 p-5 rounded-3xl mb-6">
-                      <Text className="text-gray-600 leading-relaxed">
+                    <Text className="text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-3">Letra</Text>
+                    <View className="bg-gray-50 dark:bg-gray-800 p-5 rounded-3xl mb-6">
+                      <Text className="text-gray-600 dark:text-gray-300 leading-relaxed">
                         {song.lyrics || "Nenhuma letra cadastrada."}
                       </Text>
                     </View>
 
-                    <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">Observações</Text>
-                    <View className="bg-gray-50 p-5 rounded-3xl mb-6">
-                      <Text className="text-gray-600 italic">
+                    <Text className="text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-3">Observações</Text>
+                    <View className="bg-gray-50 dark:bg-gray-800 p-5 rounded-3xl mb-6">
+                      <Text className="text-gray-600 dark:text-gray-400 italic">
                         {song.notes || "Nenhuma observação cadastrada."}
                       </Text>
                     </View>
@@ -139,32 +151,32 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
 
                 {activeTab === 'history' && (
                   <View className="pb-8">
-                    <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-4">Ministros (Vocalista Principal)</Text>
+                    <Text className="text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-4">Ministros (Vocalista Principal)</Text>
                     {stats?.ministers.length === 0 ? (
                       <Text className="text-gray-400 italic mb-8">Nenhum histórico de ministros.</Text>
                     ) : stats?.ministers.map((m: any, idx: number) => (
-                      <View key={idx} className="bg-white p-4 rounded-2xl mb-3 shadow-sm border border-gray-100 flex-row justify-between items-center">
+                      <View key={idx} className="bg-white dark:bg-gray-800 p-4 rounded-2xl mb-3 shadow-sm border border-gray-100 dark:border-gray-700 flex-row justify-between items-center">
                         <View>
-                          <Text className="font-bold text-gray-800">{m.name}</Text>
-                          <Text className="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-tighter">
+                          <Text className="font-bold text-gray-800 dark:text-white">{m.name}</Text>
+                          <Text className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 uppercase font-bold tracking-tighter">
                             Tons usados: {m.keys.join(', ') || 'Nenhum'}
                           </Text>
                         </View>
-                        <View className="bg-blue-50 px-3 py-1 rounded-full">
-                          <Text className="text-blue-600 font-bold text-xs">{m.count}x</Text>
+                        <View className="bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full">
+                          <Text className="text-blue-600 dark:text-blue-400 font-bold text-xs">{m.count}x</Text>
                         </View>
                       </View>
                     ))}
 
-                    <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mt-6 mb-4">Informações da Música</Text>
-                    <View className="bg-gray-50 p-4 rounded-2xl">
+                    <Text className="text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest mt-6 mb-4">Informações da Música</Text>
+                    <View className="bg-gray-50 dark:bg-gray-800 p-4 rounded-2xl">
                         <View className="flex-row justify-between mb-2">
-                            <Text className="text-gray-500 text-sm">Tom Padrão:</Text>
-                            <Text className="font-bold text-blue-600">{song.default_key || '-'}</Text>
+                            <Text className="text-gray-500 dark:text-gray-400 text-sm">Tom Padrão:</Text>
+                            <Text className="font-bold text-blue-600 dark:text-blue-400">{song.default_key || '-'}</Text>
                         </View>
                         <View className="flex-row justify-between">
-                            <Text className="text-gray-500 text-sm">BPM Padrão:</Text>
-                            <Text className="font-bold text-gray-800">{song.default_bpm || '-'}</Text>
+                            <Text className="text-gray-500 dark:text-gray-400 text-sm">BPM Padrão:</Text>
+                            <Text className="font-bold text-gray-800 dark:text-white">{song.default_bpm || '-'}</Text>
                         </View>
                     </View>
                   </View>
@@ -173,7 +185,7 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
                 {activeTab === 'stats' && (
                   <View className="pb-8">
                     {/* Estatísticas Pessoais */}
-                    <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-4">Suas Estatísticas</Text>
+                    <Text className="text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-4">Suas Estatísticas</Text>
                     {!stats?.personal ? (
                       <Text className="text-gray-400 italic mb-8">Você ainda não tocou esta música.</Text>
                     ) : (
@@ -207,13 +219,13 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
                             color="blue" 
                           />
                         </View>
-                        <Text className="text-gray-400 text-[9px] font-bold uppercase mb-2 ml-1">Instrumentos que você usou:</Text>
+                        <Text className="text-gray-400 dark:text-gray-500 text-[9px] font-bold uppercase mb-2 ml-1">Instrumentos que você usou:</Text>
                         <View className="flex-row flex-wrap gap-2">
                           {Object.entries(stats.personal.instruments).map(([inst, count]: any) => (
-                            <View key={inst} className="bg-gray-100 px-3 py-1.5 rounded-full flex-row items-center">
-                              <Text className="text-gray-700 text-xs font-medium">{inst}</Text>
-                              <View className="bg-white ml-2 px-1.5 rounded-full">
-                                <Text className="text-blue-600 text-[10px] font-bold">{count}</Text>
+                            <View key={inst} className="bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-full flex-row items-center">
+                              <Text className="text-gray-700 dark:text-gray-300 text-xs font-medium">{inst}</Text>
+                              <View className="bg-white dark:bg-gray-700 ml-2 px-1.5 rounded-full">
+                                <Text className="text-blue-600 dark:text-blue-400 text-[10px] font-bold">{count}</Text>
                               </View>
                             </View>
                           ))}
@@ -222,7 +234,7 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
                     )}
 
                     {/* Estatísticas Gerais */}
-                    <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-4">Estatísticas do Grupo</Text>
+                    <Text className="text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-4">Estatísticas do Grupo</Text>
                     <View className="flex-row flex-wrap -m-1 mb-4">
                       <StatCard 
                         title="Total Grupo" 
@@ -256,9 +268,9 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
                 )}
               </>
             )}
-          </ScrollView>
+            <View className="h-10" />
+          </BottomSheetScrollView>
         </View>
-      </View>
-    </Modal>
+    </AppBottomSheet>
   );
 }

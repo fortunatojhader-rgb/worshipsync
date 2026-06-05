@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Modal, TouchableOpacity, ScrollView, Alert, ActivityIndicator, TextInput, Image } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, Modal, TouchableOpacity, Alert, ActivityIndicator, TextInput, Image, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useAuthStore } from '../stores/authStore';
 import { AddToSetlistModal } from './AddToSetlistModal';
 import { DeleteSetlistModal } from './DeleteSetlistModal';
@@ -13,6 +14,7 @@ import { useEventRoster, useAddMemberToEvent, useRemoveMemberFromEvent, useMembe
 import { INSTRUMENTS } from '../constants/instruments';
 import { CloseButton } from './ui/CloseButton';
 import { SongCard } from './song/SongCard';
+import { AppBottomSheet } from './ui/AppBottomSheet';
 
 interface EventDetailsModalProps {
   visible: boolean;
@@ -22,6 +24,7 @@ interface EventDetailsModalProps {
 }
 
 export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventDetailsModalProps) {
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
   const [tab, setTab] = useState<'roster' | 'setlist' | 'theme'>('roster');
   const [addSongVisible, setAddSongVisible] = useState(false);
   const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
@@ -51,8 +54,15 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
   const addMemberToEvent = useAddMemberToEvent();
   const removeMemberFromEvent = useRemoveMemberFromEvent();
 
-  // Membros que podem ser ministros (Vocais)
   const vocals = roster?.filter((p: any) => p.instrument === 'Vocal') || [];
+
+  useEffect(() => {
+    if (visible) {
+      bottomSheetRef.current?.present();
+    } else {
+      bottomSheetRef.current?.dismiss();
+    }
+  }, [visible]);
 
   useEffect(() => {
     if (event) {
@@ -118,10 +128,6 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
         event_date: newDate.toISOString()
       });
       
-      event.theme_title = themeTitle;
-      event.theme_verse = themeVerse;
-      event.event_date = newDate.toISOString();
-      
       Alert.alert('Sucesso', 'Informações atualizadas!');
       setIsEditingTime(false);
       onSuccess();
@@ -145,16 +151,19 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
     await updateOrder.mutateAsync({ id: targetItem.id, newOrder: item.display_order || currentIndex + 1 });
   };
 
-
   return (
-    <Modal visible={visible} animationType="slide" transparent>
-      <View className="flex-1 bg-black/50 justify-end">
-        <View className="glass rounded-[32px] p-6 h-[90%] shadow-2xl shadow-black/20">
+    <>
+      <AppBottomSheet 
+        ref={bottomSheetRef} 
+        onClose={onClose}
+        snapPoints={['90%']}
+      >
+        <View className="flex-1">
           <View className="flex-row justify-between items-center mb-6">
             <View className="flex-1">
-                <Text className="text-2xl font-bold text-gray-800">{event?.title}</Text>
+                <Text className="text-2xl font-bold text-gray-800 dark:text-white">{event?.title}</Text>
                 <View className="flex-row items-center mt-2">
-                    <Text className="text-gray-500 font-medium">
+                    <Text className="text-gray-500 dark:text-gray-400 font-medium">
                         {new Date(event?.event_date).toLocaleDateString()} • {eventTime}
                     </Text>
                     {isLeader && (
@@ -177,20 +186,20 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
           </View>
 
           {isEditingTime && (
-              <View className="bg-gray-100/50 backdrop-blur-md p-4 rounded-3xl mb-4 border border-white/20">
+              <View className="bg-gray-100/50 backdrop-blur-md p-4 rounded-3xl mb-4 border border-white/20 dark:bg-gray-800/50">
                   <Text className="font-bold mb-2 text-sm text-gray-700 dark:text-gray-200">Alterar Horário:</Text>
-                  <TextInput className="bg-white/50 p-3 rounded-2xl border border-white/30" value={eventTime} onChangeText={setEventTime} placeholder="HH:MM" />
+                  <TextInput className="bg-white/50 p-3 rounded-2xl border border-white/30 dark:bg-gray-700/50 dark:text-white" value={eventTime} onChangeText={setEventTime} placeholder="HH:MM" placeholderTextColor="#9ca3af" />
                   <TouchableOpacity onPress={handleSaveEvent} className="bg-blue-600 mt-3 p-3 rounded-2xl items-center shadow-lg"><Text className="text-white font-bold">Salvar Horário</Text></TouchableOpacity>
               </View>
           )}
 
-          <View className="bg-gray-100/50 backdrop-blur-md rounded-3xl p-1 flex-row mb-6 border border-white/20">
-            <TouchableOpacity onPress={() => setTab('roster')} className={`flex-1 py-2 rounded-2xl items-center ${tab === 'roster' ? 'bg-white/60 shadow-sm' : ''}`}><Text className={`font-bold text-xs ${tab === 'roster' ? 'text-blue-600' : 'text-gray-500'}`}>Equipe</Text></TouchableOpacity>
-            <TouchableOpacity onPress={() => setTab('setlist')} className={`flex-1 py-2 rounded-2xl items-center ${tab === 'setlist' ? 'bg-white/60 shadow-sm' : ''}`}><Text className={`font-bold text-xs ${tab === 'setlist' ? 'text-blue-600' : 'text-gray-500'}`}>Setlist</Text></TouchableOpacity>
-            <TouchableOpacity onPress={() => setTab('theme')} className={`flex-1 py-2 rounded-2xl items-center ${tab === 'theme' ? 'bg-white/60 shadow-sm' : ''}`}><Text className={`font-bold text-xs ${tab === 'theme' ? 'text-blue-600' : 'text-gray-500'}`}>Tema</Text></TouchableOpacity>
+          <View className="bg-gray-100/50 backdrop-blur-md rounded-3xl p-1 flex-row mb-6 border border-white/20 dark:bg-gray-800/50">
+            <TouchableOpacity onPress={() => setTab('roster')} className={`flex-1 py-2 rounded-2xl items-center ${tab === 'roster' ? 'bg-white/60 shadow-sm dark:bg-gray-700/60' : ''}`}><Text className={`font-bold text-xs ${tab === 'roster' ? 'text-blue-600' : 'text-gray-500'}`}>Equipe</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => setTab('setlist')} className={`flex-1 py-2 rounded-2xl items-center ${tab === 'setlist' ? 'bg-white/60 shadow-sm dark:bg-gray-700/60' : ''}`}><Text className={`font-bold text-xs ${tab === 'setlist' ? 'text-blue-600' : 'text-gray-500'}`}>Setlist</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => setTab('theme')} className={`flex-1 py-2 rounded-2xl items-center ${tab === 'theme' ? 'bg-white/60 shadow-sm dark:bg-gray-700/60' : ''}`}><Text className={`font-bold text-xs ${tab === 'theme' ? 'text-blue-600' : 'text-gray-500'}`}>Tema</Text></TouchableOpacity>
           </View>
 
-          <ScrollView className="flex-1">
+          <BottomSheetScrollView className="flex-1">
             {tab === 'roster' && (
               <>
                 {isLeader && isEditing && (
@@ -206,7 +215,6 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                 {loadingRoster ? <ActivityIndicator /> : (
                   !roster || roster.length === 0 ? <Text className="text-gray-400 text-center py-8 italic">Ninguém escalado ainda.</Text> :
                   (() => {
-                    // Agrupa por membro
                     const members = roster.reduce((acc: any, p: any) => {
                         const id = p.group_members.id;
                         if (!acc[id]) {
@@ -218,9 +226,9 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                     }, {});
 
                     return Object.values(members).map((p: any) => (
-                        <View key={p.id} className="bg-white p-4 rounded-2xl mb-3 shadow-sm border border-gray-100 flex-row items-center justify-between">
+                        <View key={p.id} className="bg-white p-4 rounded-2xl mb-3 shadow-sm border border-gray-100 flex-row items-center justify-between dark:bg-gray-800 dark:border-gray-700">
                         <TouchableOpacity onPress={() => setSelectedMember(p.group_members)} className="flex-row items-center flex-1">
-                            <View className="w-10 h-10 bg-blue-50 rounded-full items-center justify-center mr-3 overflow-hidden">
+                            <View className="w-10 h-10 bg-blue-50 rounded-full items-center justify-center mr-3 overflow-hidden dark:bg-blue-900/30">
                             {p.group_members?.users?.photo_url ? (
                                 <Image source={{ uri: p.group_members.users.photo_url }} className="w-full h-full" />
                             ) : (
@@ -228,7 +236,7 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                             )}
                             </View>
                             <View>
-                            <Text className="font-bold text-gray-800">{p.group_members?.users?.display_name}</Text>
+                            <Text className="font-bold text-gray-800 dark:text-white">{p.group_members?.users?.display_name}</Text>
                             <Text className="text-gray-400 text-xs uppercase font-bold tracking-widest">{p.instrument.join(' / ')}</Text>
                             </View>
                         </TouchableOpacity>
@@ -258,26 +266,26 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                 
                 {isLeader && isEditing && (
                     <View className="mt-4">
-                        <Text className="font-bold text-gray-700 mb-2">Adicionar Integrante:</Text>
+                        <Text className="font-bold text-gray-700 dark:text-gray-300 mb-2">Adicionar Integrante:</Text>
                         <View className="flex-row flex-wrap gap-2 mb-4">
                             {INSTRUMENTS.map((inst) => (
                                 <TouchableOpacity 
                                     key={inst} 
                                     onPress={() => setAddingInstrument(inst === addingInstrument ? null : inst)}
-                                    className={`px-3 py-2 rounded-xl ${addingInstrument === inst ? 'bg-blue-600' : 'bg-gray-200'}`}
+                                    className={`px-3 py-2 rounded-xl ${addingInstrument === inst ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'}`}
                                 >
-                                    <Text className={addingInstrument === inst ? 'text-white font-bold' : 'text-gray-700'}>{inst}</Text>
+                                    <Text className={addingInstrument === inst ? 'text-white font-bold' : 'text-gray-700 dark:text-gray-300'}>{inst}</Text>
                                 </TouchableOpacity>
                             ))}
                         </View>
                         {addingInstrument && (
-                            <View className="bg-white p-4 rounded-2xl border border-gray-100">
+                            <View className="bg-white dark:bg-gray-800 p-4 rounded-2xl border border-gray-100 dark:border-gray-700">
                                 {allMembers?.filter(m => m.member_instruments.some((mi: any) => mi.instrument === addingInstrument)).map(m => (
-                                    <TouchableOpacity key={m.id} onPress={() => handleAddMember(m, addingInstrument)} className="flex-row items-center p-2 border-b border-gray-50">
+                                    <TouchableOpacity key={m.id} onPress={() => handleAddMember(m, addingInstrument)} className="flex-row items-center p-2 border-b border-gray-50 dark:border-gray-700">
                                         <View className="w-8 h-8 bg-blue-50 rounded-full items-center justify-center mr-3 overflow-hidden">
                                             {m.users?.photo_url ? <Image source={{ uri: m.users.photo_url }} className="w-full h-full" /> : <Ionicons name="person" size={16} color="#2563eb" />}
                                         </View>
-                                        <Text className="font-bold">{m.users?.display_name}</Text>
+                                        <Text className="font-bold dark:text-white">{m.users?.display_name}</Text>
                                     </TouchableOpacity>
                                 ))}
                             </View>
@@ -288,14 +296,14 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
             )}
 
             {tab === 'setlist' && (
-              <View className="bg-gray-50 p-4 rounded-2xl">
+              <View className="bg-gray-50 dark:bg-gray-900 p-4 rounded-2xl">
                 {isLeader && isEditing && (
                     <TouchableOpacity onPress={() => setAddSongVisible(true)} className="bg-blue-600 p-3 rounded-xl mb-4 items-center shadow-sm">
                         <Text className="text-white font-bold">Adicionar Música</Text>
                     </TouchableOpacity>
                 )}
                 {loadingSetlist ? <ActivityIndicator /> : (
-                  setlist?.length === 0 ? <Text className="text-gray-600 italic text-center py-4">Nenhuma música no setlist.</Text> :
+                  setlist?.length === 0 ? <Text className="text-gray-600 dark:text-gray-400 italic text-center py-4">Nenhuma música no setlist.</Text> :
                   setlist?.map((item: any) => (
                     <SongCard 
                       key={item.id}
@@ -319,28 +327,30 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
             )}
 
             {tab === 'theme' && (
-              <View className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+              <View className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-2xl border border-blue-100 dark:border-blue-800">
                 {isLeader && isEditing ? (
                     <>
-                        <TextInput className="bg-white p-4 rounded-xl mb-3 border border-blue-200" placeholder="Título do Tema" value={themeTitle} onChangeText={setThemeTitle} />
-                        <TextInput className="bg-white p-4 rounded-xl mb-4 border border-blue-200 h-32" placeholder="Versículo/Descrição" value={themeVerse} onChangeText={setThemeVerse} multiline textAlignVertical="top" />
+                        <TextInput className="bg-white dark:bg-gray-800 p-4 rounded-xl mb-3 border border-blue-200 dark:border-blue-900 dark:text-white" placeholder="Título do Tema" value={themeTitle} onChangeText={setThemeTitle} placeholderTextColor="#9ca3af" />
+                        <TextInput className="bg-white dark:bg-gray-800 p-4 rounded-xl mb-4 border border-blue-200 dark:border-blue-900 dark:text-white h-32" placeholder="Versículo/Descrição" value={themeVerse} onChangeText={setThemeVerse} multiline textAlignVertical="top" placeholderTextColor="#9ca3af" />
                         <TouchableOpacity onPress={handleSaveEvent} className="bg-blue-600 p-3 rounded-xl items-center shadow-md"><Text className="text-white font-bold">Salvar Tema</Text></TouchableOpacity>
                     </>
                 ) : (
                     <>
-                        <Text className="text-blue-800 font-bold mb-2 text-lg">{event?.theme_title || 'Sem tema definido'}</Text>
-                        <Text className="text-blue-600 italic">"{event?.theme_verse || 'Nenhum versículo ou descrição.'}"</Text>
+                        <Text className="text-blue-800 dark:text-blue-200 font-bold mb-2 text-lg">{event?.theme_title || 'Sem tema definido'}</Text>
+                        <Text className="text-blue-600 dark:text-blue-400 italic">"{event?.theme_verse || 'Nenhum versículo ou descrição.'}"</Text>
                     </>
                 )}
               </View>
             )}
-          </ScrollView>
+            <View className="h-10" />
+          </BottomSheetScrollView>
         </View>
-      </View>
+      </AppBottomSheet>
+
       <AddToSetlistModal visible={addSongVisible} onClose={() => setAddSongVisible(false)} onAdd={handleAddSong} />
       <DeleteSetlistModal visible={!!deleteItemId} onClose={() => setDeleteItemId(null)} itemId={deleteItemId} />
       <SongDetailsModal visible={!!detailsSong} onClose={() => setDetailsSong(null)} song={detailsSong} />
       <MemberProfileModal visible={!!selectedMember} onClose={() => setSelectedMember(null)} member={selectedMember} />
-    </Modal>
+    </>
   );
 }

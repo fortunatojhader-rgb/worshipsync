@@ -10,6 +10,7 @@ import '../global.css'
 import { supabase } from '../lib/supabase'
 import { useAuthStore } from '../stores/authStore'
 import { useThemeStore } from '../stores/themeStore'
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 
 SplashScreen.preventAutoHideAsync()
 const queryClient = new QueryClient()
@@ -88,11 +89,13 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <View style={{ flex: 1 }} className={activeTheme} key={activeTheme}>
-          <View className="flex-1 bg-white dark:bg-black">
-            <Slot />
+        <BottomSheetModalProvider>
+          <View style={{ flex: 1 }} className={activeTheme} key={activeTheme}>
+            <View className="flex-1 bg-white dark:bg-black">
+              <Slot />
+            </View>
           </View>
-        </View>
+        </BottomSheetModalProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>
   )
