@@ -9,6 +9,22 @@ interface YouTubePlayerProps {
 export function YouTubePlayer({ videoId }: YouTubePlayerProps) {
   const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=0`;
 
+  if (Platform.OS === 'web') {
+    return (
+      <View style={styles.container}>
+        <iframe
+          width="100%"
+          height="100%"
+          src={embedUrl}
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          style={{ borderRadius: 24 }}
+        />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <WebView
