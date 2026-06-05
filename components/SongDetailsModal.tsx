@@ -110,10 +110,16 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
                   <View className="pb-8">
                     <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">Materiais</Text>
                     <View className="flex-row gap-x-6 mb-8">
-                      <MaterialButton icon="logo-youtube" label="YouTube" url={song.youtube_url} color="#ef4444" />
                       <MaterialButton icon="spotify" label="Spotify" url={song.spotify_url} color="#1db954" library="FontAwesome" />
                       <MaterialButton icon="document-text" label="Cifra" url={song.cifraclub_url} color="#2563eb" />
                     </View>
+
+                    {videoId && (
+                      <View className="mb-8">
+                        <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">Vídeo de Ensaio</Text>
+                        <YouTubePlayer videoId={videoId} />
+                      </View>
+                    )}
 
                     <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-3">Letra</Text>
                     <View className="bg-gray-50 p-5 rounded-3xl mb-6">
