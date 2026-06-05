@@ -68,7 +68,6 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
 const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
-    paddingBottom: 20,
   },
   header: {
     marginBottom: 10,
