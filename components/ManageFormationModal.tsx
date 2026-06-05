@@ -48,9 +48,9 @@ export function ManageFormationModal({ visible, onClose, currentFormation }: Man
         <View className="glass rounded-t-3xl p-6 h-[80%]">
           <View className="flex-row justify-between items-center mb-6">
             <Text className="text-xl font-bold">Formação Padrão</Text>
-            <TouchableOpacity onPress={onClose} className="p-2 bg-gray-100 rounded-full">
-              <Ionicons name="close" size={20} color="#4b5563" />
-            </TouchableOpacity>
+import { CloseButton } from './ui/CloseButton';
+...
+            <CloseButton onPress={onClose} />
           </View>
 
           <Text className="text-gray-500 text-sm mb-6">

@@ -48,9 +48,9 @@ export function ManageFunctionsModal({ visible, onClose, userFunctions }: Manage
         <View className="glass rounded-t-3xl p-6 h-[80%]">
           <View className="flex-row justify-between items-center mb-6">
             <Text className="text-xl font-bold">Minhas Funções</Text>
-            <TouchableOpacity onPress={onClose} className="p-2 bg-gray-100 rounded-full">
-              <Ionicons name="close" size={20} color="#4b5563" />
-            </TouchableOpacity>
+import { CloseButton } from './ui/CloseButton';
+...
+            <CloseButton onPress={onClose} />
           </View>
           
           <ScrollView className="flex-1">

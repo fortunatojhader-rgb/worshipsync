@@ -33,9 +33,9 @@ export function TutorialModal({ visible, onClose, role }: TutorialModalProps) {
                 <Text className="text-2xl font-bold text-gray-800">Guia WorshipSync</Text>
                 <Text className="text-gray-400 text-xs font-bold uppercase tracking-widest">Manual do {isLeader ? 'Líder' : 'Integrante'}</Text>
             </View>
-            <TouchableOpacity onPress={onClose} className="p-2 bg-gray-100 rounded-full">
-              <Ionicons name="close" size={20} color="#374151" />
-            </TouchableOpacity>
+            import { CloseButton } from './ui/CloseButton';
+            ...
+                        <CloseButton onPress={onClose} />
           </View>
 
           <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>

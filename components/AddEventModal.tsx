@@ -55,7 +55,12 @@ export function AddEventModal({ visible, onClose, selectedDate, onSuccess }: Add
     <Modal visible={visible} animationType="slide" transparent>
       <View className="flex-1 bg-black/50 items-center justify-center p-4">
         <View className="glass p-6 rounded-3xl w-full max-w-sm">
-          <Text className="text-xl font-bold mb-4">Novo Evento - {selectedDate}</Text>
+import { CloseButton } from './ui/CloseButton';
+...
+          <View className="flex-row justify-between items-center mb-4">
+            <Text className="text-xl font-bold">Novo Evento - {selectedDate}</Text>
+            <CloseButton onPress={onClose} />
+          </View>
           
           <TextInput
             className="bg-gray-100 p-4 rounded-xl mb-3"
