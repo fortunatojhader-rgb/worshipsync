@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Modal, TouchableOpacity, TextInput, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSuggestSong } from '../lib/queries/useSongs';
+import { CloseButton } from './ui/CloseButton';
 
 interface SuggestSongModalProps {
   visible: boolean;
@@ -31,8 +32,6 @@ export function SuggestSongModal({ visible, onClose }: SuggestSongModalProps) {
         <View className="glass rounded-t-3xl p-6 h-[80%]">
           <View className="flex-row justify-between items-center mb-6">
             <Text className="text-xl font-bold">Sugerir Música</Text>
-import { CloseButton } from './ui/CloseButton';
-...
             <CloseButton onPress={onClose} />
           </View>
           

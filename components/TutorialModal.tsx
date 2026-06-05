@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { CloseButton } from './ui/CloseButton';
 
 interface TutorialModalProps {
   visible: boolean;
@@ -33,9 +34,7 @@ export function TutorialModal({ visible, onClose, role }: TutorialModalProps) {
                 <Text className="text-2xl font-bold text-gray-800">Guia WorshipSync</Text>
                 <Text className="text-gray-400 text-xs font-bold uppercase tracking-widest">Manual do {isLeader ? 'Líder' : 'Integrante'}</Text>
             </View>
-            import { CloseButton } from './ui/CloseButton';
-            ...
-                        <CloseButton onPress={onClose} />
+            <CloseButton onPress={onClose} />
           </View>
 
           <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
