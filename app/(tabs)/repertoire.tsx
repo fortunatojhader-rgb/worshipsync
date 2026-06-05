@@ -8,6 +8,7 @@ import { EditSongModal } from '../../components/EditSongModal';
 import { DeleteSongModal } from '../../components/DeleteSongModal';
 import { SongDetailsModal } from '../../components/SongDetailsModal';
 import { SuggestSongModal } from '../../components/SuggestSongModal';
+import { SongCard } from '../../components/song/SongCard';
 
 export default function RepertoireScreen() {
   const [addModalVisible, setAddModalVisible] = useState(false);
@@ -42,8 +43,6 @@ export default function RepertoireScreen() {
                 </TouchableOpacity>
             </View>
 
-import { SongCard } from '../../components/song/SongCard';
-...
             {songs?.length === 0 ? (
                 <Text className="text-gray-500 text-center py-4">Nenhuma música cadastrada.</Text>
             ) : (
