@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useAddSong } from '../lib/queries/useSongs';
 import { AppBottomSheet } from './ui/AppBottomSheet';
 import { CloseButton } from './ui/CloseButton';
@@ -58,10 +58,12 @@ export function AddSongModal({ visible, onClose }: AddSongModalProps) {
     <AppBottomSheet 
       ref={bottomSheetRef} 
       onClose={onClose}
-      snapPoints={['90%']}
-      scrollable={true}
+      snapPoints={['95%']}
     >
-      <View className="flex-1">
+      <BottomSheetScrollView 
+        className="flex-1 px-4"
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
         <View className="flex-row justify-between items-center mb-6">
           <Text className="text-xl font-bold dark:text-white">Adicionar Música</Text>
           <CloseButton onPress={onClose} />
@@ -86,8 +88,7 @@ export function AddSongModal({ visible, onClose }: AddSongModalProps) {
         <TouchableOpacity onPress={handleAdd} disabled={addSong.isPending} className="p-4 rounded-xl bg-blue-600 items-center shadow-lg">
           {addSong.isPending ? <ActivityIndicator color="white" /> : <Text className="text-white font-bold text-lg">Adicionar Música</Text>}
         </TouchableOpacity>
-        <View className="h-10" />
-      </View>
+      </BottomSheetScrollView>
     </AppBottomSheet>
   );
 }

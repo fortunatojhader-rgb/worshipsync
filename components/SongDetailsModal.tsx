@@ -15,7 +15,6 @@ interface SongDetailsModalProps {
 
 type TabType = 'lyrics' | 'history' | 'stats';
 
-// Helper to extract YouTube ID
 const getYoutubeId = (url: string | null | undefined) => {
   if (!url) return null;
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -84,11 +83,10 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
     <AppBottomSheet 
       ref={bottomSheetRef} 
       onClose={onClose}
-      snapPoints={['90%']}
+      snapPoints={['95%']}
     >
         <View className="flex-1">
-          {/* Header */}
-          <View className="p-6 pb-2">
+          <View className="px-6 py-2">
             <View className="flex-row justify-between items-center mb-2">
               <View className="flex-1">
                 <Text className="text-2xl font-bold text-gray-800 dark:text-white" numberOfLines={1}>{song.title}</Text>
@@ -96,22 +94,24 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
               </View>
               <CloseButton onPress={onClose} />
             </View>
+
+            <View className="flex-row mt-2 mb-4">
+              <TouchableOpacity onPress={() => setActiveTab('lyrics')} className={`mr-6 pb-2 ${activeTab === 'lyrics' ? 'border-b-2 border-blue-600' : ''}`}>
+                <Text className={`font-bold ${activeTab === 'lyrics' ? 'text-blue-600' : 'text-gray-400'}`}>Letra</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setActiveTab('history')} className={`mr-6 pb-2 ${activeTab === 'history' ? 'border-b-2 border-blue-600' : ''}`}>
+                <Text className={`font-bold ${activeTab === 'history' ? 'text-blue-600' : 'text-gray-400'}`}>Histórico</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setActiveTab('stats')} className={`pb-2 ${activeTab === 'stats' ? 'border-b-2 border-blue-600' : ''}`}>
+                <Text className={`font-bold ${activeTab === 'stats' ? 'text-blue-600' : 'text-gray-400'}`}>Estatísticas</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
-          {/* Tabs */}
-          <View className="flex-row px-6 mb-4">
-            <TouchableOpacity onPress={() => setActiveTab('lyrics')} className={`mr-6 pb-2 ${activeTab === 'lyrics' ? 'border-b-2 border-blue-600' : ''}`}>
-              <Text className={`font-bold ${activeTab === 'lyrics' ? 'text-blue-600' : 'text-gray-400'}`}>Letra</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setActiveTab('history')} className={`mr-6 pb-2 ${activeTab === 'history' ? 'border-b-2 border-blue-600' : ''}`}>
-              <Text className={`font-bold ${activeTab === 'history' ? 'text-blue-600' : 'text-gray-400'}`}>Histórico</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setActiveTab('stats')} className={`pb-2 ${activeTab === 'stats' ? 'border-b-2 border-blue-600' : ''}`}>
-              <Text className={`font-bold ${activeTab === 'stats' ? 'text-blue-600' : 'text-gray-400'}`}>Estatísticas</Text>
-            </TouchableOpacity>
-          </View>
-
-          <BottomSheetScrollView className="flex-1 px-6">
+          <BottomSheetScrollView 
+            className="flex-1 px-6"
+            contentContainerStyle={{ paddingBottom: 150 }}
+          >
             {isLoading ? (
               <View className="flex-1 items-center justify-center py-20">
                 <ActivityIndicator size="large" color="#2563eb" />
@@ -184,7 +184,6 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
 
                 {activeTab === 'stats' && (
                   <View className="pb-8">
-                    {/* Estatísticas Pessoais */}
                     <Text className="text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-4">Suas Estatísticas</Text>
                     {!stats?.personal ? (
                       <Text className="text-gray-400 italic mb-8">Você ainda não tocou esta música.</Text>
@@ -233,7 +232,6 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
                       </View>
                     )}
 
-                    {/* Estatísticas Gerais */}
                     <Text className="text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-4">Estatísticas do Grupo</Text>
                     <View className="flex-row flex-wrap -m-1 mb-4">
                       <StatCard 
@@ -268,7 +266,6 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
                 )}
               </>
             )}
-            <View className="h-10" />
           </BottomSheetScrollView>
         </View>
     </AppBottomSheet>

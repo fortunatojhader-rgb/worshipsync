@@ -4,7 +4,6 @@ import {
   BottomSheetModal,
   BottomSheetView,
   BottomSheetBackdrop,
-  BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
 import { useThemeStore } from '../../stores/themeStore';
 import { useColorScheme } from 'react-native';
@@ -14,16 +13,15 @@ interface AppBottomSheetProps {
   snapPoints?: string[];
   onClose?: () => void;
   title?: string;
-  scrollable?: boolean;
 }
 
 export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
-  ({ children, snapPoints: customSnapPoints, onClose, title, scrollable = false }, ref) => {
+  ({ children, snapPoints: customSnapPoints, onClose, title }, ref) => {
     const { theme } = useThemeStore();
     const systemColorScheme = useColorScheme();
     const isDark = (theme === 'system' ? systemColorScheme : theme) === 'dark';
 
-    const snapPoints = useMemo(() => customSnapPoints || ['50%', '90%'], [customSnapPoints]);
+    const snapPoints = useMemo(() => customSnapPoints || ['50%', '95%'], [customSnapPoints]);
 
     const renderBackdrop = useCallback(
       (props: any) => (
@@ -48,15 +46,13 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
       width: 40,
     }), [isDark]);
 
-    const Container = scrollable ? BottomSheetScrollView : BottomSheetView;
-
     return (
       <BottomSheetModal
         ref={ref}
         index={0}
         snapPoints={snapPoints}
         backdropComponent={renderBackdrop}
-        enablePanDownToClose
+        enablePanDownToClose={true}
         enableContentPanningGesture={false}
         enableHandlePanningGesture={true}
         onDismiss={onClose}
@@ -68,14 +64,14 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
           backgroundColor: isDark ? '#111827' : '#f9fafb',
         }}
       >
-        <Container style={styles.contentContainer} contentContainerStyle={scrollable ? styles.scrollContent : undefined}>
+        <BottomSheetView style={styles.contentContainer}>
           {title && (
             <View style={styles.header}>
               <Text style={[styles.title, { color: isDark ? '#ffffff' : '#111827' }]}>{title}</Text>
             </View>
           )}
           {children}
-        </Container>
+        </BottomSheetView>
       </BottomSheetModal>
     );
   }
@@ -85,12 +81,8 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
   },
-  scrollContent: {
-    padding: 16,
-    paddingTop: 0,
-  },
   header: {
-    marginBottom: 20,
+    marginBottom: 10,
     marginTop: 10,
     alignItems: 'center',
   },

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, ScrollView } from 'react-native';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/authStore';
 import { useEvents } from '../lib/queries/useEvents';
@@ -67,10 +67,12 @@ export function AddEventModal({ visible, onClose, selectedDate, onSuccess }: Add
     <AppBottomSheet 
       ref={bottomSheetRef} 
       onClose={onClose}
-      snapPoints={['70%', '90%']}
-      scrollable={true}
+      snapPoints={['95%']}
     >
-      <View className="flex-1">
+      <BottomSheetScrollView 
+        className="flex-1 px-4"
+        contentContainerStyle={{ paddingBottom: 100 }}
+      >
         <View className="flex-row justify-between items-center mb-6">
           <Text className="text-xl font-bold dark:text-white">Novo Evento - {selectedDate}</Text>
           <CloseButton onPress={onClose} />
@@ -102,7 +104,7 @@ export function AddEventModal({ visible, onClose, selectedDate, onSuccess }: Add
         {type === 'rehearsal' && services.length > 0 && (
           <View className="mb-3">
             <Text className="text-gray-600 dark:text-gray-400 text-xs mb-1">Vincular a qual culto?</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-x-2">
+            <BottomSheetScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-x-2">
               {services.map(s => (
                 <TouchableOpacity 
                   key={s.id}
@@ -113,7 +115,7 @@ export function AddEventModal({ visible, onClose, selectedDate, onSuccess }: Add
                   <Text className="text-[10px] text-gray-500 dark:text-gray-400">{new Date(s.event_date).toLocaleDateString()}</Text>
                 </TouchableOpacity>
               ))}
-            </ScrollView>
+            </BottomSheetScrollView>
           </View>
         )}
 
@@ -133,8 +135,7 @@ export function AddEventModal({ visible, onClose, selectedDate, onSuccess }: Add
             {loading ? <ActivityIndicator color="white" /> : <Text className="text-white font-bold">Criar</Text>}
           </TouchableOpacity>
         </View>
-        <View className="h-10" />
-      </View>
+      </BottomSheetScrollView>
     </AppBottomSheet>
   );
 }
