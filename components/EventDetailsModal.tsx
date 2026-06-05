@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Modal, TouchableOpacity, Alert, ActivityIndicator, TextInput, Image, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, ActivityIndicator, TextInput, Image, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useAuthStore } from '../stores/authStore';
@@ -127,6 +127,10 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
         theme_verse: themeVerse,
         event_date: newDate.toISOString()
       });
+      
+      event.theme_title = themeTitle;
+      event.theme_verse = themeVerse;
+      event.event_date = newDate.toISOString();
       
       Alert.alert('Sucesso', 'Informações atualizadas!');
       setIsEditingTime(false);

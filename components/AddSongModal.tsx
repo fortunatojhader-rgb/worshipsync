@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert } fro
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useAddSong } from '../lib/queries/useSongs';
 import { AppBottomSheet } from './ui/AppBottomSheet';
+import { CloseButton } from './ui/CloseButton';
 
 interface AddSongModalProps {
   visible: boolean;
@@ -57,10 +58,14 @@ export function AddSongModal({ visible, onClose }: AddSongModalProps) {
     <AppBottomSheet 
       ref={bottomSheetRef} 
       onClose={onClose}
-      title="Adicionar Música"
       snapPoints={['90%']}
     >
       <View className="flex-1">
+        <View className="flex-row justify-between items-center mb-6">
+          <Text className="text-xl font-bold">Adicionar Música</Text>
+          <CloseButton onPress={onClose} />
+        </View>
+
         <TextInput className="bg-gray-100 p-4 rounded-xl mb-3 dark:bg-gray-800 dark:text-white" placeholder="Título" value={title} onChangeText={setTitle} placeholderTextColor="#9ca3af" />
         <TextInput className="bg-gray-100 p-4 rounded-xl mb-3 dark:bg-gray-800 dark:text-white" placeholder="Artista" value={artist} onChangeText={setArtist} placeholderTextColor="#9ca3af" />
         
