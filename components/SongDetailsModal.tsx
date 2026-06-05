@@ -110,7 +110,7 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
 
         <BottomSheetScrollView 
           style={{ flex: 1 }}
-          contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 150 }}
+          contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingBottom: 150 }}
           showsVerticalScrollIndicator={true}
         >
           {isLoading ? (
