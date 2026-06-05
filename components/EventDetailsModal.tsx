@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, Alert, ActivityIndicator, TextInput, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, ActivityIndicator, TextInput, Image, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useAuthStore } from '../stores/authStore';
@@ -157,48 +157,54 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
         ref={bottomSheetRef} 
         onClose={onClose}
         snapPoints={['95%']}
-        scrollable={true}
       >
-          <View className="flex-row justify-between items-center mb-6">
-            <View className="flex-1">
-                <Text className="text-2xl font-bold text-gray-800 dark:text-white">{event?.title}</Text>
-                <View className="flex-row items-center mt-2">
-                    <Text className="text-gray-500 dark:text-gray-400 font-medium">
-                        {new Date(event?.event_date).toLocaleDateString()} • {eventTime}
-                    </Text>
-                    {isLeader && (
-                        <TouchableOpacity onPress={() => setIsEditingTime(!isEditingTime)} className="ml-2">
-                            <Ionicons name="pencil" size={16} color={isEditingTime ? "#dc2626" : "#2563eb"} />
-                        </TouchableOpacity>
-                    )}
-                </View>
-            </View>
-            <View className="flex-row items-center">
-              {isLeader && event?.type === 'service' && (
-                <TouchableOpacity onPress={() => setIsEditing(!isEditing)} className="mr-3">
-                  <Text className={`font-bold ${isEditing ? 'text-red-600' : 'text-blue-600'}`}>
-                    {isEditing ? 'Concluir' : 'Editar'}
-                  </Text>
-                </TouchableOpacity>
-              )}
-              <CloseButton onPress={onClose} />
-            </View>
-          </View>
-
-          {isEditingTime && (
-              <View className="bg-gray-100/50 backdrop-blur-md p-4 rounded-3xl mb-4 border border-white/20 dark:bg-gray-800/50">
-                  <Text className="font-bold mb-2 text-sm text-gray-700 dark:text-gray-200">Alterar Horário:</Text>
-                  <TextInput className="bg-white/50 p-3 rounded-2xl border border-white/30 dark:bg-gray-700/50 dark:text-white" value={eventTime} onChangeText={setEventTime} placeholder="HH:MM" placeholderTextColor="#9ca3af" />
-                  <TouchableOpacity onPress={handleSaveEvent} className="bg-blue-600 mt-3 p-3 rounded-2xl items-center shadow-lg"><Text className="text-white font-bold">Salvar Horário</Text></TouchableOpacity>
+        <View className="flex-1">
+          <View className="px-6">
+            <View className="flex-row justify-between items-center mb-6">
+              <View className="flex-1">
+                  <Text className="text-2xl font-bold text-gray-800 dark:text-white">{event?.title}</Text>
+                  <View className="flex-row items-center mt-2">
+                      <Text className="text-gray-500 dark:text-gray-400 font-medium">
+                          {new Date(event?.event_date).toLocaleDateString()} • {eventTime}
+                      </Text>
+                      {isLeader && (
+                          <TouchableOpacity onPress={() => setIsEditingTime(!isEditingTime)} className="ml-2">
+                              <Ionicons name="pencil" size={16} color={isEditingTime ? "#dc2626" : "#2563eb"} />
+                          </TouchableOpacity>
+                      )}
+                  </View>
               </View>
-          )}
+              <View className="flex-row items-center">
+                {isLeader && event?.type === 'service' && (
+                  <TouchableOpacity onPress={() => setIsEditing(!isEditing)} className="mr-3">
+                    <Text className={`font-bold ${isEditing ? 'text-red-600' : 'text-blue-600'}`}>
+                      {isEditing ? 'Concluir' : 'Editar'}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                <CloseButton onPress={onClose} />
+              </View>
+            </View>
 
-          <View className="bg-gray-100/50 backdrop-blur-md rounded-3xl p-1 flex-row mb-6 border border-white/20 dark:bg-gray-800/50">
-            <TouchableOpacity onPress={() => setTab('roster')} className={`flex-1 py-2 rounded-2xl items-center ${tab === 'roster' ? 'bg-white/60 shadow-sm dark:bg-gray-700/60' : ''}`}><Text className={`font-bold text-xs ${tab === 'roster' ? 'text-blue-600' : 'text-gray-500'}`}>Equipe</Text></TouchableOpacity>
-            <TouchableOpacity onPress={() => setTab('setlist')} className={`flex-1 py-2 rounded-2xl items-center ${tab === 'setlist' ? 'bg-white/60 shadow-sm dark:bg-gray-700/60' : ''}`}><Text className={`font-bold text-xs ${tab === 'setlist' ? 'text-blue-600' : 'text-gray-500'}`}>Setlist</Text></TouchableOpacity>
-            <TouchableOpacity onPress={() => setTab('theme')} className={`flex-1 py-2 rounded-2xl items-center ${tab === 'theme' ? 'bg-white/60 shadow-sm dark:bg-gray-700/60' : ''}`}><Text className={`font-bold text-xs ${tab === 'theme' ? 'text-blue-600' : 'text-gray-500'}`}>Tema</Text></TouchableOpacity>
+            {isEditingTime && (
+                <View className="bg-gray-100/50 backdrop-blur-md p-4 rounded-3xl mb-4 border border-white/20 dark:bg-gray-800/50">
+                    <Text className="font-bold mb-2 text-sm text-gray-700 dark:text-gray-200">Alterar Horário:</Text>
+                    <TextInput className="bg-white/50 p-3 rounded-2xl border border-white/30 dark:bg-gray-700/50 dark:text-white" value={eventTime} onChangeText={setEventTime} placeholder="HH:MM" placeholderTextColor="#9ca3af" />
+                    <TouchableOpacity onPress={handleSaveEvent} className="bg-blue-600 mt-3 p-3 rounded-2xl items-center shadow-lg"><Text className="text-white font-bold">Salvar Horário</Text></TouchableOpacity>
+                </View>
+            )}
+
+            <View className="bg-gray-100/50 backdrop-blur-md rounded-3xl p-1 flex-row mb-6 border border-white/20 dark:bg-gray-800/50">
+              <TouchableOpacity onPress={() => setTab('roster')} className={`flex-1 py-2 rounded-2xl items-center ${tab === 'roster' ? 'bg-white/60 shadow-sm dark:bg-gray-700/60' : ''}`}><Text className={`font-bold text-xs ${tab === 'roster' ? 'text-blue-600' : 'text-gray-500'}`}>Equipe</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => setTab('setlist')} className={`flex-1 py-2 rounded-2xl items-center ${tab === 'setlist' ? 'bg-white/60 shadow-sm dark:bg-gray-700/60' : ''}`}><Text className={`font-bold text-xs ${tab === 'setlist' ? 'text-blue-600' : 'text-gray-500'}`}>Setlist</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => setTab('theme')} className={`flex-1 py-2 rounded-2xl items-center ${tab === 'theme' ? 'bg-white/60 shadow-sm dark:bg-gray-700/60' : ''}`}><Text className={`font-bold text-xs ${tab === 'theme' ? 'text-blue-600' : 'text-gray-500'}`}>Tema</Text></TouchableOpacity>
+            </View>
           </View>
 
+          <ScrollView 
+            className="flex-1 px-6"
+            contentContainerStyle={{ paddingBottom: 150 }}
+          >
             {tab === 'roster' && (
               <>
                 {isLeader && isEditing && (
@@ -341,6 +347,8 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                 )}
               </View>
             )}
+          </ScrollView>
+        </View>
       </AppBottomSheet>
 
       <AddToSetlistModal visible={addSongVisible} onClose={() => setAddSongVisible(false)} onAdd={handleAddSong} />
