@@ -18,7 +18,7 @@ interface AppBottomSheetProps {
 }
 
 export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
-  ({ children, snapPoints: customSnapPoints, onClose, title, scrollable = true }, ref) => {
+  ({ children, snapPoints: customSnapPoints, onClose, title, scrollable = false }, ref) => {
     const { theme } = useThemeStore();
     const systemColorScheme = useColorScheme();
     const isDark = (theme === 'system' ? systemColorScheme : theme) === 'dark';
@@ -73,8 +73,6 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
             </View>
           )}
           {children}
-          {/* Espaçamento extra para o final do scroll */}
-          <View style={{ height: Platform.OS === 'web' ? 40 : 80 }} />
         </Container>
       </BottomSheetModal>
     );

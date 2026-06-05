@@ -59,10 +59,11 @@ export function AddSongModal({ visible, onClose }: AddSongModalProps) {
       ref={bottomSheetRef} 
       onClose={onClose}
       snapPoints={['90%']}
+      scrollable={true}
     >
       <View className="flex-1">
         <View className="flex-row justify-between items-center mb-6">
-          <Text className="text-xl font-bold">Adicionar Música</Text>
+          <Text className="text-xl font-bold dark:text-white">Adicionar Música</Text>
           <CloseButton onPress={onClose} />
         </View>
 

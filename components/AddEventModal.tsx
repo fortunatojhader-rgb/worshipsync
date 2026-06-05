@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/authStore';
 import { useEvents } from '../lib/queries/useEvents';
 import { AppBottomSheet } from './ui/AppBottomSheet';
+import { CloseButton } from './ui/CloseButton';
 
 interface AddEventModalProps {
   visible: boolean;
@@ -66,10 +67,15 @@ export function AddEventModal({ visible, onClose, selectedDate, onSuccess }: Add
     <AppBottomSheet 
       ref={bottomSheetRef} 
       onClose={onClose}
-      title={`Novo Evento - ${selectedDate}`}
       snapPoints={['70%', '90%']}
+      scrollable={true}
     >
       <View className="flex-1">
+        <View className="flex-row justify-between items-center mb-6">
+          <Text className="text-xl font-bold dark:text-white">Novo Evento - {selectedDate}</Text>
+          <CloseButton onPress={onClose} />
+        </View>
+
         <TextInput
           className="bg-gray-100 p-4 rounded-xl mb-3 dark:bg-gray-800 dark:text-white"
           placeholder="Nome do Evento"
@@ -127,6 +133,7 @@ export function AddEventModal({ visible, onClose, selectedDate, onSuccess }: Add
             {loading ? <ActivityIndicator color="white" /> : <Text className="text-white font-bold">Criar</Text>}
           </TouchableOpacity>
         </View>
+        <View className="h-10" />
       </View>
     </AppBottomSheet>
   );

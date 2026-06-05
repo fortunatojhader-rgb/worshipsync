@@ -41,23 +41,22 @@ export function SuggestSongModal({ visible, onClose }: SuggestSongModalProps) {
       ref={bottomSheetRef} 
       onClose={onClose}
       snapPoints={['80%']}
+      scrollable={true}
     >
         <View className="flex-1">
           <View className="flex-row justify-between items-center mb-6">
-            <Text className="text-xl font-bold">Sugerir Música</Text>
+            <Text className="text-xl font-bold dark:text-white">Sugerir Música</Text>
             <CloseButton onPress={onClose} />
           </View>
           
-          <ScrollView className="flex-1">
-            <Text className="text-gray-700 dark:text-gray-300 font-bold mb-2">Nome da Música</Text>
-            <TextInput className="bg-gray-100 dark:bg-gray-800 dark:text-white p-4 rounded-xl mb-4" value={songName} onChangeText={setSongName} />
-            
-            <Text className="text-gray-700 dark:text-gray-300 font-bold mb-2">Link (YouTube, Cifra, etc.)</Text>
-            <TextInput className="bg-gray-100 dark:bg-gray-800 dark:text-white p-4 rounded-xl mb-4" value={link} onChangeText={setLink} placeholder="https://..." placeholderTextColor="#9ca3af" />
-            
-            <Text className="text-gray-700 dark:text-gray-300 font-bold mb-2">Por que incluir esta música?</Text>
-            <TextInput className="bg-gray-100 dark:bg-gray-800 dark:text-white p-4 rounded-xl mb-4 h-32" value={reason} onChangeText={setReason} multiline textAlignVertical="top" />
-          </ScrollView>
+          <Text className="text-gray-700 dark:text-gray-300 font-bold mb-2">Nome da Música</Text>
+          <TextInput className="bg-gray-100 dark:bg-gray-800 dark:text-white p-4 rounded-xl mb-4" value={songName} onChangeText={setSongName} />
+          
+          <Text className="text-gray-700 dark:text-gray-300 font-bold mb-2">Link (YouTube, Cifra, etc.)</Text>
+          <TextInput className="bg-gray-100 dark:bg-gray-800 dark:text-white p-4 rounded-xl mb-4" value={link} onChangeText={setLink} placeholder="https://..." placeholderTextColor="#9ca3af" />
+          
+          <Text className="text-gray-700 dark:text-gray-300 font-bold mb-2">Por que incluir esta música?</Text>
+          <TextInput className="bg-gray-100 dark:bg-gray-800 dark:text-white p-4 rounded-xl mb-4 h-32" value={reason} onChangeText={setReason} multiline textAlignVertical="top" />
 
           <TouchableOpacity onPress={handleSuggest} disabled={suggestSong.isPending} className="bg-blue-600 p-4 rounded-2xl items-center shadow-lg">
             {suggestSong.isPending ? <ActivityIndicator color="white" /> : <Text className="text-white font-bold text-lg">Enviar Sugestão</Text>}
