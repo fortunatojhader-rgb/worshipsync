@@ -70,9 +70,9 @@ export function SongDetailsModal({ visible, onClose, song }: SongDetailsModalPro
                 <Text className="text-2xl font-bold text-gray-800" numberOfLines={1}>{song.title}</Text>
                 <Text className="text-gray-500 font-medium">{song.artist || 'Desconhecido'}</Text>
               </View>
-              <TouchableOpacity onPress={onClose} className="p-2 bg-gray-200 rounded-full dark:bg-gray-600">
-                <Ionicons name="close" size={20} color="#111827" className="dark:text-white" />
-              </TouchableOpacity>
+import { CloseButton } from './ui/CloseButton';
+...
+              <CloseButton onPress={onClose} />
             </View>
           </View>
 
