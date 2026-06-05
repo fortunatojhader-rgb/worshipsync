@@ -42,39 +42,20 @@ export default function RepertoireScreen() {
                 </TouchableOpacity>
             </View>
 
+import { SongCard } from '../../components/song/SongCard';
+...
             {songs?.length === 0 ? (
                 <Text className="text-gray-500 text-center py-4">Nenhuma música cadastrada.</Text>
             ) : (
                 songs?.map(song => (
-                  <TouchableOpacity 
-                    key={song.id} 
+                  <SongCard 
+                    key={song.id}
+                    song={song}
                     onPress={() => setDetailsSong(song)}
-                    className="bg-white p-4 rounded-2xl mb-3 shadow-sm border border-gray-100 flex-row justify-between items-center"
-                  >
-                    <View className="flex-1">
-                      <Text className="font-bold text-gray-800">{song.title}</Text>
-                      <Text className="text-xs text-gray-400 mb-1">{song.artist} • {song.default_bpm} BPM</Text>
-                      <View className="flex-row gap-x-1">
-                        {song.youtube_url ? <Ionicons name="logo-youtube" size={14} color="#ef4444" /> : null}
-                        {song.spotify_url ? <FontAwesome name="spotify" size={14} color="#1db954" /> : null}
-                        {song.cifraclub_url ? <Ionicons name="document-text" size={14} color="#2563eb" /> : null}
-                        {song.lyrics ? <Ionicons name="text" size={14} color="#6b7280" /> : null}
-                      </View>
-                    </View>
-                    <View className="items-end ml-2">
-                      <Text className="font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg mb-1">{song.default_key}</Text>
-                      {isLeader && (
-                        <View className="flex-row gap-x-2">
-                          <TouchableOpacity onPress={(e) => { e.stopPropagation(); setEditSong(song); }} className="p-2">
-                            <Ionicons name="pencil" size={18} color="#6b7280" />
-                          </TouchableOpacity>
-                          <TouchableOpacity onPress={(e) => { e.stopPropagation(); setDeleteSongItem(song); }} className="p-2">
-                            <Ionicons name="trash" size={18} color="#ef4444" />
-                          </TouchableOpacity>
-                        </View>
-                      )}
-                    </View>
-                  </TouchableOpacity>
+                    showActions={isLeader}
+                    onEdit={() => setEditSong(song)}
+                    onDelete={() => setDeleteSongItem(song)}
+                  />
                 ))
             )}
           </>

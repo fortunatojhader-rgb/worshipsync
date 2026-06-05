@@ -293,72 +293,27 @@ export function EventDetailsModal({ visible, onClose, event, onSuccess }: EventD
                         <Text className="text-white font-bold">Adicionar Música</Text>
                     </TouchableOpacity>
                 )}
+import { SongCard } from './song/SongCard';
+...
                 {loadingSetlist ? <ActivityIndicator /> : (
                   setlist?.length === 0 ? <Text className="text-gray-600 italic text-center py-4">Nenhuma música no setlist.</Text> :
                   setlist?.map((item: any) => (
-                    <TouchableOpacity key={item.id} disabled={isEditing} onPress={() => setDetailsSong(item.songs)} className="bg-white p-4 rounded-2xl mb-3 shadow-sm border border-gray-100 flex-row justify-between items-center">
-                      <View className="flex-row items-center flex-1">
-                        {isLeader && isEditing && (
-                          <View className="mr-2">
-                            <TouchableOpacity onPress={() => moveSong(item, 'up')}><Ionicons name="chevron-up" size={16}/></TouchableOpacity>
-                            <TouchableOpacity onPress={() => moveSong(item, 'down')}><Ionicons name="chevron-down" size={16}/></TouchableOpacity>
-                          </View>
-                        )}
-                        <View className="flex-1 ml-1">
-                          <Text className="font-bold text-gray-800">{(item.songs as any)?.title}</Text>
-                          <Text className="text-xs text-gray-400 mb-1">{(item.songs as any)?.artist} • {(item.songs as any)?.default_bpm} BPM</Text>
-                          
-                          {/* Seleção de Ministro */}
-                          <View className="flex-row items-center mt-1">
-                            <Ionicons name="mic-outline" size={12} color="#6b7280" />
-                            {isLeader && isEditing ? (
-                              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="ml-1">
-                                <TouchableOpacity 
-                                  onPress={() => handleUpdateVocalist(item.id, null)}
-                                  className={`px-2 py-0.5 rounded-md mr-1 ${!item.vocalist_id ? 'bg-blue-100' : 'bg-gray-100'}`}
-                                >
-                                  <Text className={`text-[9px] ${!item.vocalist_id ? 'text-blue-600 font-bold' : 'text-gray-500'}`}>Ninguém</Text>
-                                </TouchableOpacity>
-                                {vocals.map((v: any) => (
-                                  <TouchableOpacity 
-                                    key={v.group_members.id}
-                                    onPress={() => handleUpdateVocalist(item.id, v.group_members.id)}
-                                    className={`px-2 py-0.5 rounded-md mr-1 ${item.vocalist_id === v.group_members.id ? 'bg-blue-100' : 'bg-gray-100'}`}
-                                  >
-                                    <Text className={`text-[9px] ${item.vocalist_id === v.group_members.id ? 'text-blue-600 font-bold' : 'text-gray-500'}`}>
-                                      {v.group_members.users.display_name}
-                                    </Text>
-                                  </TouchableOpacity>
-                                ))}
-                              </ScrollView>
-                            ) : (
-                              <Text className="text-[10px] text-gray-500 ml-1">
-                                {item.vocalist?.users?.display_name || 'Ministro não definido'}
-                              </Text>
-                            )}
-                          </View>
-                        </View>
-                      </View>
-                      <View className="items-end ml-2">
-                        {isLeader && isEditing ? (
-                          <View className="items-end">
-                            <TextInput 
-                              className="font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg mb-1 text-center w-12"
-                              defaultValue={item.key || (item.songs as any)?.default_key}
-                              onBlur={(e) => handleUpdateKey(item.id, e.nativeEvent.text)}
-                              placeholder="Tom"
-                            />
-                            <TouchableOpacity onPress={() => setDeleteItemId(item.id)} className="p-1">
-                              <Ionicons name="trash" size={18} color="#ef4444" />
-                            </TouchableOpacity>
-                          </View>
-                        ) : (
-                          <Text className="font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-lg mb-1">
-                            {item.key || (item.songs as any)?.default_key || '-'}
-                          </Text>
-                        )}
-                      </View>
-                    </TouchableOpacity>
+                    <SongCard 
+                      key={item.id}
+                      song={item.songs}
+                      onPress={() => setDetailsSong(item.songs)}
+                      inSetlist
+                      isEditing={isEditing}
+                      onMoveUp={() => moveSong(item, 'up')}
+                      onMoveDown={() => moveSong(item, 'down')}
+                      onUpdateVocalist={(vocalistId) => handleUpdateVocalist(item.id, vocalistId)}
+                      vocals={vocals}
+                      vocalistId={item.vocalist_id}
+                      vocalistName={item.vocalist?.users?.display_name}
+                      onUpdateKey={(key) => handleUpdateKey(item.id, key)}
+                      overrideKey={item.key}
+                      onRemoveFromSetlist={() => setDeleteItemId(item.id)}
+                    />
                   ))
                 )}
               </View>
